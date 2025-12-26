@@ -1,0 +1,22 @@
+# API Design
+
+## Authentication
+POST /auth/login  
+GET  /auth/me  
+
+## Users
+GET /users/me  
+GET /users (admin)  
+GET /users/birthdays (admin)
+
+## Events
+GET /events  
+POST /events (admin)  
+GET /events/{id}  
+PUT /events/{id} (admin)  
+DELETE /events/{id} (admin)
+
+## Registrations
+POST /events/{id}/register  
+GET /events/{id}/registrations (admin)  
+DELETE /registrations/{id}
