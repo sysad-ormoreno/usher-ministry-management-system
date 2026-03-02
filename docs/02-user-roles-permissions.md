@@ -29,7 +29,7 @@
 - Manage roles
 - System settings (targets, schedule templates) (phase 2 if not MVP)
 
-## VOLUNTEER (no login)
+### VOLUNTEER (no login)
 Volunteers can:
 - Register for an event/service (with name, phone, discipler, commitment time)
 - Edit their registration **only for the same event instance**
