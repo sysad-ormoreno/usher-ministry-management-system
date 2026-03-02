@@ -40,6 +40,10 @@ Filters:
 - Table shows names (and volunteer phone/discipler)
 - Button to assign aisle leader
 
+## 7) Notifications
+- In-app list + bell badge count
+- Click notification deep-links to event detail
+
 ## Volunteer: Manage Registration (no login)
 Entry point:
 - Button/link: "Volunteer? Manage your registration"
@@ -49,7 +53,3 @@ Flow:
 2) View upcoming registrations for that phone
 3) Edit (commitment time + slots if Sunday) or Withdraw
 4) No "Move" option for volunteers
-
-## 7) Notifications
-- In-app list + bell badge count
-- Click notification deep-links to event detail
