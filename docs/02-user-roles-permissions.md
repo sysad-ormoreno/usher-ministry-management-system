@@ -28,3 +28,14 @@
 - Approve members (PENDING -> ACTIVE)
 - Manage roles
 - System settings (targets, schedule templates) (phase 2 if not MVP)
+
+## VOLUNTEER (no login)
+Volunteers can:
+- Register for an event/service (with name, phone, discipler, commitment time)
+- Edit their registration **only for the same event instance**
+  - Allowed: commitment time, Sunday slot selection (if Sunday)
+  - Not allowed: move to another date/event instance
+- Withdraw (cancel) their registration
+
+Volunteers authenticate for editing via:
+- phone number + edit PIN (shown once at registration time)
