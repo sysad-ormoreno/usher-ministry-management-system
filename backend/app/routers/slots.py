@@ -1,3 +1,10 @@
+"""
+FILE: routers/slots.py
+SOURCE DOC: docs/11-backend-implementation-logic.md (Section 1: The Sunday Rule)
+DEPENDENCIES: models.ServiceSlot
+DESCRIPTION: Manages service times and capacity limits for Sunday rotations.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import time
