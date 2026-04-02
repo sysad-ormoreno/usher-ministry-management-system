@@ -30,3 +30,13 @@ Because we never "Hard Delete" a registration:
 ## 5. Capacity vs. Target Logic
 - **Target (15):** A soft goal. If the count is < 15, the UI shows "Need X more."
 - **Capacity (Hard Limit):** Only used for Special Events. If reached, the `Register` button is hard-disabled for all non-admin users.
+
+## 6. Tenure & Recognition (Award Milestones)
+To honor long-term commitment, the system tracks "Service Years" for all Google-authenticated Members.
+- **Eligibility:** Exclusive to users with the `USHER` role. Volunteers (Phone+PIN only) do not accrue tenure.
+- **Milestone Calculation:** `(current_date - service_start_date) / 365.25`.
+- **Recognition Tiers:**
+    - **3 Years (Bronze):** "Faithful Service" Milestone.
+    - **5 Years (Silver):** "Pillar" Milestone.
+    - **10 Years (Gold):** "Legacy" Milestone.
+- **Leader View:** A "Medal" icon appears next to the user's name in the Directory if they have surpassed one of these milestones within the current calendar year.
