@@ -8,6 +8,7 @@ This file tracks how our Documentation (Blueprints) connects to our Python (Cons
 | **Sunday Grace Period** | `docs/11-backend-logic.md` | `routers/slots.py` |
 | **Audit & Revert** | `docs/11-backend-logic.md` | `models.py` (AuditLog Table) |
 | **Tenure Awards** | `docs/11-backend-logic.md` | (Planning Phase - Logic in Doc 11) |
+| **Birthday Dashboard** | (Your prompt today) | routers/reports.py |
 
 ---
 
