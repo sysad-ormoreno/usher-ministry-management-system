@@ -50,3 +50,9 @@
 
 ### Authentication
 - **Authoritative Status:** Only users with an `ACTIVE` status in the database can successfully log in and interact with protected features. `PENDING` or `DISABLED` users are restricted from the dashboard.
+
+## Communication & Experience (PWA)
+- **Mobile-First Design:** The portal is a Progressive Web App (PWA), allowing ushers to "Install" it to their mobile home screens for a native-app experience.
+- **In-App Notifications:** - **Aisle Leader Alerts:** Real-time notification when a Core Leader assigns a specific duty.
+  - **Schedule Reminders:** Automatic "check-in" prompts sent prior to the 24-hour lockout window.
+- **Push Notifications:** Leverages the Web Push API to send alerts directly to the user's device lock screen (requires user permission).
