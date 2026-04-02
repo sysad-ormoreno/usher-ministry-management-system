@@ -52,13 +52,14 @@
 ## 5) Core Leader: Management View
 - **Event Detail Page:**
     - **Sunday View:** Tabbed navigation for 1st, 2nd, and 3rd slots.
-    - **Roster Table:** Display Full Name, Role Badge, Phone (Volunteers), and Discipler.
+    - **Roster Table:** Display Full Name, Role Badge, Phone, and Discipler.
 - **Management Actions:**
     - **Aisle Leader:** Toggle switch to assign/unassign the "Aisle Leader" duty.
     - **Attendance Tracking:** Action buttons to update state to `PRESENT`, `ABSENT`, or `EXCUSED`.
     - **Override Management:** `Move` button to manually shift a user to a different slot or date. 
-    - **Profile Correction:** Ability to click a user's name to open a **Quick Edit Modal** to fix typos in Name, Phone, or Discipler.
-        - **Logic:** Any change is logged in the `audit_log` as an administrative update.
+    - **Profile Correction:** Ability to click **any** user's name (Usher or Volunteer) to open a **Quick Edit Modal**.
+        - **Editable Fields:** First Name, Last Name, Phone, and Discipler Name.
+        - **Audit Trail:** The system must log: *"Admin [Name] updated Profile [ID] Name from 'Jhon' to 'John'"*.
 
 ## 6) Notifications
 - **Interface:** Bell icon in the app header with a red unread count badge.
@@ -70,7 +71,7 @@
 ## 7) Admin: User Directory (Cleanup)
 - **Access:** Restricted to `ADMIN` and `CORE_LEADER` roles.
 - **Search:** Global search by Name, Phone, or Discipler.
-- **Actions:**
-    - **Edit Profile:** Centralized area to correct typos or update discipler names for all users (Ushers and Volunteers).
-    - **Status Toggle:** Change user status (e.g., `ACTIVE` to `DISABLED` or `PENDING` to `ACTIVE`).
-    - **Volunteer Promotion:** Link a Volunteer record to a Google ID once they become a regular Usher.
+- **Unified Profile Management:**
+    - **Edit All Profiles:** Centralized interface to correct typos for the entire database (both Google-linked Ushers and PIN-based Volunteers).
+    - **Account Linking:** If a Volunteer later signs in with Google, Admins use this view to merge the "Volunteer Profile" into the new "Google Profile" to keep their service history intact.
+    - **Status Control:** Toggle `ACTIVE`, `PENDING`, or `DISABLED` for any user.
