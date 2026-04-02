@@ -8,7 +8,7 @@
 - **The Logic Bridge (Google Users):**
     1. Authenticate via Google.
     2. Backend checks `google_id` in `Profiles` table.
-    3. **New User:** Redirect to **Profile Setup Form** (First/Last, Phone, Birthday, Discipler).
+    3. **New User:** Redirect to **Profile Setup Form** (First/Last, Phone, Birthday, Discipler, Date Joined Usher Ministry).
     4. **Existing User:** Redirect to **Dashboard**.
 - **The Waiting Room:** Users with `status: PENDING` see a "Review in Progress" screen with access to the **Info Tab** (Manuals/Infographics).
 
