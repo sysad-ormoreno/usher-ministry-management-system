@@ -58,6 +58,7 @@
 
 ## 6) Notifications
 - **Interface:** Bell icon in the app header with a red unread count badge.
-- **Content:** - Duty assignments (e.g., "Assigned as Aisle Leader for 2nd Slot").
+- **Content:**
+    - Duty assignments (e.g., "Assigned as Aisle Leader for 2nd Slot").
     - Automated reminders (e.g., "24 hours until Sunday Service - Last chance to edit").
 - **Interaction:** Clicking a notification item deep-links the user directly to the relevant Event Detail or Sunday Slot page.
