@@ -1,21 +1,63 @@
-# 03-wireflow.md (Revised Entry Points)
+# 03-wireflow.md (Detailed MVP)
 
-## 1) Landing Page (The Two Doors)
-- **Door A: [Login with Google]**
-    - Target: Regular Ushers & Leaders.
-    - Result: Access to Personal Dashboard, Notifications, and Serving History.
-- **Door B: [Volunteer Registration]**
-    - Target: Provincial/Senior Volunteers without Google Accounts.
-    - Process: Simple form (Name, Phone, Discipler).
-    - Result: Success message + "Edit PIN" displayed. No dashboard access.
+## 1) Entry Points & Authentication
+- **Landing Page (Mobile-First):**
+    - **Primary Button:** `Login with Google` (For Ushers/Leaders).
+    - **Secondary Link:** `Volunteer Registration` (For provincial/senior members).
+    - **Management Link:** `Volunteer? Manage your registration` (Phone + PIN entry).
+- **The Logic Bridge (Google Users):**
+    1. Authenticate via Google.
+    2. Backend checks `google_id` in `Profiles` table.
+    3. **New User:** Redirect to **Profile Setup Form** (First/Last, Phone, Birthday, Discipler).
+    4. **Existing User:** Redirect to **Dashboard**.
+- **The Waiting Room:** Users with `status: PENDING` see a "Review in Progress" screen with access to the **Info Tab** (Manuals/Infographics).
 
-## 2) Behind the Scenes (The Database Logic)
-- **The Usher:** Linked by `google_id`.
-- **The Volunteer:** Linked by `phone_number`.
-- **The "Promotion":** If a Volunteer eventually gets a Google account, an **Admin** can "Link" their phone-based history to their new Google profile.
+## 2) Dashboard: Upcoming (Main View)
+- **Filters & Navigation:**
+    - **Chips:** `All` / `Sunday` / `Midweek` / `Special`.
+    - **Range Selector:** `Next 2` / `4` / `8 weeks`.
+- **Event List:** Grouped by Date header (e.g., `Sun, Mar 08`).
+- **Cards (Usher/Leader View):**
+    - **Header:** Event Title + Time Range + Status Badge (`REGISTERED`, `PRESENT`, `ABSENT`, `EXCUSED`).
+    - **Usher Metrics:** `12 registered (Ideal: 15)` or `15/20 (Capacity)`.
+    - **Leader Metrics:** Toggle button to "View Roster Names."
+- **Primary Actions:**
+    - `Register` (if spot available and user not already registered).
+    - `Edit` / `Withdraw` (if registered & before 24hr lockout).
 
-## 3) Core Leader View (The Bridge)
-- In the Roster Table, the Leader sees both.
-- **Icon 1:** A Google icon next to Ushers (Logged in).
-- **Icon 2:** A Phone icon next to Volunteers (Guest).
-- **Action:** The Leader can call either one directly from the app.
+## 3) Registration Flows
+- **Sunday Service:**
+    - **Input:** `Arrival Time` (Time Picker).
+    - **Slot Selection:** 1st/2nd/3rd checkboxes.
+    - **Logic:** Disable checkboxes where `Arrival Time > Slot Start + 30m`.
+    - **Action:** Confirm to POST registration.
+- **Midweek Prayer:**
+    - **Input:** `Commitment Time` (Required).
+    - **Action:** Confirm registration.
+- **Special Events:**
+    - **Input:** `Commitment Time`.
+    - **Logic:** Disable `Register` button if `current_count >= capacity`.
+    - **Action:** Confirm registration.
+
+## 4) Volunteer Flow (No Login)
+- **Registration:** Same form as Sunday/Midweek but includes mandatory fields for `Full Name`, `Phone`, and `Discipler`.
+- **Post-Registration:** System generates and displays a **4-digit Edit PIN**. Instructions provided to save for future management.
+- **Management:** 1. Enter `Phone Number` + `PIN`.
+    2. View list of active registrations for that specific phone.
+    3. **Edit:** Update `Commitment Time` or `Slot` (Restricted to the same day/instance).
+    4. **Withdraw:** Mark registration as `CANCELLED`. (Note: No "Move to another date" option).
+
+## 5) Core Leader: Management View
+- **Event Detail Page:**
+    - **Sunday View:** Tabbed navigation for 1st, 2nd, and 3rd slots.
+    - **Roster Table:** Display Full Name, Role Badge, Phone (Volunteers), and Discipler.
+- **Management Actions:**
+    - **Aisle Leader:** Toggle switch to assign/unassign the "Aisle Leader" duty.
+    - **Attendance Tracking:** Action buttons to update state to `PRESENT`, `ABSENT`, or `EXCUSED`.
+    - **Override Management:** `Move` button to manually shift a user to a different slot or date (Exempt from 24hr lockout).
+
+## 6) Notifications
+- **Interface:** Bell icon in the app header with a red unread count badge.
+- **Content:** - Duty assignments (e.g., "Assigned as Aisle Leader for 2nd Slot").
+    - Automated reminders (e.g., "24 hours until Sunday Service - Last chance to edit").
+- **Interaction:** Clicking a notification item deep-links the user directly to the relevant Event Detail or Sunday Slot page.
