@@ -1,4 +1,4 @@
-# 11-validation-rules.md
+# 07-validation-rules.md
 
 ## 1. User Eligibility
 - **Active Status:** Only users with `status: ACTIVE` (Members) or a valid **Phone + PIN** session (Volunteers) can create or modify registrations.
