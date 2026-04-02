@@ -91,3 +91,47 @@ def update_attendance(
     db.commit()
     db.refresh(reg)
     return {"message": "Attendance updated", "audit_id": log_entry.id}
+
+# 4. POST: Revert to a previous state
+@router.post("/{registration_id}/revert/{log_id}")
+def revert_registration(
+    registration_id: int, 
+    log_id: int, 
+    admin_id: int, 
+    db: Session = Depends(get_db)
+):
+    # 1. Find the specific log entry
+    log = db.query(models.AuditLog).filter(
+        models.AuditLog.id == log_id,
+        models.AuditLog.registration_id == registration_id
+    ).first()
+    
+    if not log:
+        raise HTTPException(status_code=404, detail="Audit log entry not found")
+
+    # 2. Find the registration to be fixed
+    reg = db.query(models.Registration).get(registration_id)
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration record not found")
+
+    # 3. DECODE THE SNAPSHOT (Banking: Replaying the old tape)
+    old_data = json.loads(log.previous_state)
+
+    # 4. RESTORE DATA
+    reg.state = old_data["state"]
+    # If the snapshot had an arrival time, we restore it; otherwise, set to None
+    reg.arrival_time = old_data.get("arrival_time") 
+
+    # 5. LOG THE REVERSION ACTION
+    reversion_log = models.AuditLog(
+        registration_id=reg.id,
+        changed_by_id=admin_id,
+        previous_state=json.dumps({"info": "Reverting from log " + str(log_id)}),
+        action_type="REVERT"
+    )
+    
+    db.add(reversion_log)
+    db.commit()
+    db.refresh(reg)
+    
+    return {"message": "Revert successful", "new_state": reg.state}
