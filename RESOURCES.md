@@ -7,8 +7,8 @@ This file tracks how our Documentation (Blueprints) connects to our Python (Cons
 | **User & Roles** | `docs/04-data-model.md` | `models.py` & `routers/users.py` |
 | **Sunday Grace Period** | `docs/11-backend-logic.md` | `routers/slots.py` |
 | **Audit & Revert** | `docs/11-backend-logic.md` | `models.py` (AuditLog Table) |
-| **Tenure Awards** | `docs/11-backend-logic.md` | `routers/reports.py` |
-| **Birthday Dashboard** | (Your prompt today) | routers/reports.py |
+| **Tenure Awards** | `docs/12-reporting-logic.md` | `routers/reports.py` |
+| **Birthday Dashboard** | `docs/12-reporting-logic.md` | routers/reports.py |
 
 ---
 
