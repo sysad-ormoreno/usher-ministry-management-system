@@ -1,4 +1,4 @@
-# Product Brief (MVP)
+# 01-product-brief.md: Usher Portal Rebuild (ROG)
 
 ## Primary Users
 - **Regular Usher** (logged in)
@@ -19,40 +19,40 @@
 
 ## Key Workflows
 ### Usher
-- View upcoming events grouped by date
-- Register (can register multiple future dates)
-- Edit registration (including moving to another date/event)
-- Withdraw registration (subject to the 24-hour lockout rule)
+- View upcoming events grouped by date.
+- Register (can register multiple future dates).
+- Edit registration (including moving to another date/event).
+- Withdraw registration (subject to the 24-hour lockout rule).
 
 ### Core Leader
-- View full roster (names + volunteer contact info)
-- Assign aisle leader per Sunday slot or special event
-- See counts vs targets/capacity
+- View full roster (names + volunteer contact info).
+- Assign aisle leader per Sunday slot or special event.
+- See counts vs targets/capacity.
 
 ### Volunteer
-- Register without login using: Full Name, Phone Number, Discipler, and Commitment Time
+- Register without login using: Full Name, Phone Number, Discipler, and Commitment Time.
 - **Identity Logic:** The system uses the Phone Number as a unique identifier to track repeated volunteer activity without requiring a Google account.
 - **Limited Access:** Volunteers cannot edit or withdraw their own entries via the portal; manual intervention by a Core Leader or Admin is required for changes.
 
 ### Admin
-- Approve pending members (status change to ACTIVE)
-- Manage core leaders
-- Configure schedule defaults (future)
+- Approve pending members (status change to ACTIVE).
+- Manage core leaders.
+- Configure schedule defaults (future).
 
 ## Constraints & Rules
 ### Privacy
-- **Regular Ushers:** Can see aggregate counts/targets/capacity but are restricted from seeing individual names or contact details.
-- **Core Leaders:** Full visibility of roster names and contact details for operational management.
+- **Regular Ushers:** Restricted to seeing aggregate counts and targets; individual names or contact details are hidden to maintain privacy.
+- **Core Leaders:** Full visibility of roster names and contact details for operational management and coordination.
 
 ### Timing & Eligibility
-- **The Sunday Rule:** A slot is only selectable if the user's `commitment_time` is less than or equal to `slot_start + 30 minutes`. (e.g., A 1:35 PM arrival is ineligible for the 1:00 PM slot).
-- **Lockout Period:** Edit and Withdraw functions are disabled for all users 24 hours prior to the event start time to ensure stable planning for leaders.
+- **The Sunday Rule:** A slot is only selectable if the user's `commitment_time` is less than or equal to `slot_start + 30 minutes`.
+- **Lockout Period:** Edit and Withdraw functions are disabled for all users 24 hours prior to the event start time to ensure stable planning.
 
 ### Authentication
-- **Authoritative Status:** Only users with an `ACTIVE` status in the database can successfully log in and interact with protected features. `PENDING` or `DISABLED` users are restricted from the dashboard.
+- **Authoritative Status:** Only users with an `ACTIVE` status in the database can log in. `PENDING` or `DISABLED` users are restricted from the dashboard even after Google Auth.
 
-## Communication & Experience (PWA)
-- **Mobile-First Design:** The portal is a Progressive Web App (PWA), allowing ushers to "Install" it to their mobile home screens for a native-app experience.
-- **In-App Notifications:** - **Aisle Leader Alerts:** Real-time notification when a Core Leader assigns a specific duty.
-  - **Schedule Reminders:** Automatic "check-in" prompts sent prior to the 24-hour lockout window.
-- **Push Notifications:** Leverages the Web Push API to send alerts directly to the user's device lock screen (requires user permission).
+## Communication & Mobile Experience
+- **PWA (Progressive Web App):** The portal is built to be "Installed" on mobile home screens, providing a full-screen, native-app feel without an app store.
+- **Push Notifications:** Uses the Web Push API to send real-time alerts for:
+  - **Aisle Leader Assignments:** Notifying an usher when they are given a specific duty.
+  - **Schedule Reminders:** Automatic prompts sent before the 24-hour lockout window begins.
