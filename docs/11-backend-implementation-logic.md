@@ -25,7 +25,7 @@
 ---
 
 ## 2. Audit Revert (The "Undo" System)
-**Objective:** Allow Leaders to roll back a registration to its state prior to the most recent change.
+**Objective:** Allow Leaders to roll back a registration to its state prior to the most recent change.  
 **Mechanism:** POST /registrations/{reg_id}/revert
 
 ### Logic Workflow
