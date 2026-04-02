@@ -58,7 +58,7 @@
 ---
 
 ## 3. Tenure Milestone Calculation
-**Objective:** Programmatically determine 3, 5, and 10-year award eligibility.
+**Objective:** Programmatically determine 3, 5, and 10-year award eligibility.  
 **Requirement:** Account for leap years using a 365.25 day divisor.
 
 ### Reference Implementation (Python)
