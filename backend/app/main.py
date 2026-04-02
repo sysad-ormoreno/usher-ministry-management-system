@@ -7,7 +7,7 @@ DESCRIPTION: Entry point for FastAPI. Initializes database tables and includes a
 from fastapi import FastAPI
 from . import models
 from .database import engine
-from .routers import users, slots, registrations # Added the missing imports here
+from .routers import users, slots, registrations, reports 
 
 # Create the database tables on startup
 models.Base.metadata.create_all(bind=engine)
@@ -18,6 +18,7 @@ app = FastAPI(title="Usher Management System")
 app.include_router(users.router)
 app.include_router(slots.router)
 app.include_router(registrations.router)
+app.include_router(reports.router)
 
 @app.get("/")
 def read_root():
