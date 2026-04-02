@@ -34,6 +34,12 @@
     - `PATCH /registrations/{reg_id}/status`: 
         - **Body:** `state` (PRESENT, ABSENT, EXCUSED).
         - **Side Effect:** Creates an `audit_log` entry.
+- **User Management (Typo Correction & Directory):**
+    - `GET /users`: Searchable list of all Profiles (Ushers + Volunteers).
+    - `PATCH /users/{profile_id}`: 
+        - **Body:** `first_name`, `last_name`, `phone_number`, `discipler_name`, `status`.
+        - **Logic:** Allows Admin to fix typos. Logs change in `audit_log`.
+    - `POST /users/{profile_id}/link-google`: Links a Volunteer profile to a `google_id` (Promotion).
 - **Assignments:**
     - `PATCH /registrations/{reg_id}/assignment`: Toggles `is_aisle_leader`.
 - **System Recovery:**
