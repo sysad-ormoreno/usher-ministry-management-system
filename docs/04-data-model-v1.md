@@ -14,13 +14,13 @@
     - `first_name`, `last_name`
     - `phone_number` (Unique Index - primary key for Volunteers)
     - `edit_pin` (Hashed, 4-digit - for Volunteers)
-    - `discipler_name`
+    - `discipler_name` (UI utilizes autocomplete based on existing entries)
     - `birthday`
     - `preferred_schedule` (Optional)
     - `created_at`
 
 ### **Events & Schedule**
-- **event_templates:** (For automatic generation)
+- **event_templates:** 
     - `id`, `name`, `type` (SUNDAY, MIDWEEK, SPECIAL), `default_target`
 - **event_instances:**
     - `id` (PK)
@@ -39,11 +39,11 @@
 - **registrations:**
     - `id` (PK)
     - `user_id` (FK)
-    - `event_instance_id` (FK)
+    - `event_instance_id` (FK) — **Primary Parent for Movement Logic**
     - `arrival_time` (Commitment time)
     - `state` (ENUM: REGISTERED, PRESENT, ABSENT, EXCUSED, CANCELLED)
     - `is_aisle_leader` (Boolean, Default: False)
-    - `updated_by` (FK to users) — Tracks the last person to modify the record
+    - `updated_by` (FK to users)
     - `created_at`, `updated_at`
 - **registration_slots:** (Many-to-Many for Sunday)
     - `registration_id` (FK)
@@ -54,26 +54,29 @@
     - `id`, `user_id` (FK), `title`, `message`, `is_read`, `link_to_event_id`, `created_at`
 - **audit_log:**
     - `id` (UUID, PK)
-    - `actor_id` (FK to users) — The Leader/User who performed the action
-    - `target_user_id` (FK to users) — The Usher being modified
+    - `actor_id` (FK to users) 
+    - `target_user_id` (FK to users) 
     - `registration_id` (FK to registrations)
     - `action_type` (e.g., "STATUS_CHANGE", "SLOT_MOVE", "ASSIGN_AISLE")
-    - `previous_state` (JSON) — e.g., `{"state": "REGISTERED"}`
-    - `new_state` (JSON) — e.g., `{"state": "ABSENT"}`
+    - `previous_state` (JSON) 
+    - `new_state` (JSON) 
     - `timestamp`
 
 ## 3. Data Logic & Constraints
 
+### **Registration Integrity**
+- **Movement Policy:** When a registration is moved to a new date, the `event_instance_id` is updated. All associated `registration_slots` entries for the old date are purged; the user must re-select slots for the new date to ensure commitment time validity.
+- **Lockout Calculation:** The 24-hour lockout is calculated programmatically: `lockout_timestamp = service_slot.start_time - 24 hours`.
+- **The "No-Delete" Policy:** Registrations are never hard-deleted. "Withdrawals" are recorded as `state = CANCELLED` to maintain service history and burnout analytics.
+
 ### **Volunteer vs. Member Logic**
-- **Volunteer:** Identified via `phone_number` in `user_profiles`. `google_id` is NULL.
-- **The "Link" Rule:** If a Volunteer becomes an official Member, the Admin updates their existing record with a `google_id` and changes the role to `USHER`.
+- **Volunteer:** Identified via `phone_number`. `google_id` remains NULL.
+- **The "Link" Rule:** If a Volunteer joins as a Member, the Admin updates the record with a `google_id` and changes the role to `USHER`.
 
 ### **Recovery & History Logic**
-- **Undo Capability:** The system allows a "revert" by checking the `previous_state` in the `audit_log` and patching the `registrations` table back to that value.
-- **Transparency:** Core Leaders can view the history of a registration to see who marked a member `ABSENT` or `PRESENT` and at what time.
+- **Undo Capability:** System allows reverting changes by applying `previous_state` from the most recent `audit_log` entry.
+- **Transparency:** Leaders can view the `audit_log` per registration to track state changes (e.g., who changed a status from ABSENT to PRESENT).
 
-### **The Sunday & Privacy Logic**
-- **The Sunday Logic:** A single registration can link to multiple `service_slots` (e.g., serving 1st and 2nd slots).
-- **Privacy Layer:** 
-    - **Ushers:** Only see aggregate `current_count` from `registrations` joins. 
-    - **Leaders:** Join `registrations` with `user_profiles` to access names and phone numbers.
+### **Privacy Layer** 
+- **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
+- **Leaders:** API joins `registrations` with `user_profiles` for full identity visibility.
