@@ -1,4 +1,4 @@
-# 04-data-model-v1.md
+# 04-data-model.md
 
 ## 1. Core Entities
 
