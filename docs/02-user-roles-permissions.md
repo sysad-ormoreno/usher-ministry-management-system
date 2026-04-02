@@ -4,38 +4,33 @@
 | Status | Authentication | API Access |
 | :--- | :--- | :--- |
 | **ACTIVE** | Allowed | Full access based on Role. |
-| **PENDING** | Allowed | Restricted to "Waiting Room" view only. |
-| **INACTIVE/DISABLED** | Denied | No access; redirected to "Account Disabled" page. |
+| **PENDING** | Allowed | Restricted to "Waiting Room" (Review Status) view. |
+| **INACTIVE/DISABLED** | Denied | Hard block; Redirected to "Contact Admin" page. |
 
 ## 2. Role-Based Access Control (RBAC)
 
 ### **Role: USHER**
 - **Read:** Upcoming events (Dates, Slots, Ideal Targets, Current Counts).
-- **Write:** Create/Edit/Withdraw own registrations (subject to 24hr lockout).
-- **Profile:** View/Update own basic profile details (Discipler, preferred schedule).
-- **Restrictions:** **CANNOT** see names or contact info of other ushers.
+- **Write:** Create/Edit/Withdraw **own** registrations.
+- **Constraint:** Subject to the **24-hour lockout** rule.
+- **Privacy:** Restricted from seeing names/contacts of others.
 
 ### **Role: CORE_LEADER**
-- **Inheritance:** Includes all **USHER** permissions.
-- **Read:** Full Roster (Names, Phone Numbers, Discipler names) for all events.
-- **Write:** Assign/Unassign "Aisle Leader" status to any registered Usher.
-- **Special:** View "Volunteer" details to follow up on newcomers.
+- **Inheritance:** Includes all **USHER** permissions (for their own serving slots).
+- **Read:** Full Roster (Names, Phone Numbers, Discipler) for all events.
+- **Write (Override):** Can Edit, Move, or Withdraw **any** registration (Usher, Volunteer, or fellow Core Leader).
+- **Constraint:** **Exempt** from the 24-hour lockout rule (can manage roster in real-time).
+- **Write:** Assign/Unassign "Aisle Leader" status.
 
 ### **Role: ADMIN**
 - **Inheritance:** Includes all **CORE_LEADER** permissions.
-- **Write:** Change User Status (e.g., PENDING -> ACTIVE).
-- **Write:** Promote/Demote Roles (e.g., USHER -> CORE_LEADER).
-- **System:** Define "Ideal Targets" per service slot.
+- **Write:** System-wide User Management (Change Status: PENDING -> ACTIVE).
+- **Write:** Role Management (Promote/Demote users).
+- **Config:** Set "Ideal Targets" and Event Templates.
 
 ---
 
-## 3. The Volunteer Exception (Non-Authenticated)
-Volunteers interact with a separate set of "Public" endpoints.
-- **Identity:** Verified via `Phone Number` + `Edit PIN`.
-- **Allowed Actions:**
-    - Register for a specific event.
-    - Update `commitment_time` or `Sunday slot` for that specific instance.
-    - Cancel (Withdraw) their registration.
-- **Locked Actions:**
-    - Cannot "Move" to a different date (must cancel and re-register).
-    - Cannot access any Usher-only dashboard or counts.
+## 3. Volunteer Access (PIN-Based)
+- **Validation:** Phone Number + Edit PIN.
+- **Write:** Update commitment time/slot for the **current registered instance only**.
+- **Constraint:** Cannot move to a different date. Cannot see any "Usher" dashboards.
