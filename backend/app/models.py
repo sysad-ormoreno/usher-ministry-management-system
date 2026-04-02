@@ -21,6 +21,7 @@ class User(Base):
     role = Column(String, default="VOLUNTEER")
     service_start_date = Column(Date, nullable=True)
     is_active = Column(Boolean, default=True)
+    last_recognized_milestone = Column(Integer, default=0)
     registrations = relationship("Registration", back_populates="user")
 
 class ServiceSlot(Base):
