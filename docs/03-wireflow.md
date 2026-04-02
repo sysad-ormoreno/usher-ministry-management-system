@@ -70,11 +70,14 @@
     - Automated reminders (e.g., "24 hours until Sunday Service - Last chance to edit").
 - **Interaction:** Clicking a notification item deep-links the user directly to the relevant Event Detail or Sunday Slot page.
 
-## 7) Admin: User Directory (Cleanup)
+## 7) Admin: User Directory (Leadership Dashboard)
 - **Access:** Restricted to `ADMIN` and `CORE_LEADER` roles.
-- **Search:** Global search by Name, Phone, or Discipler.
+- **Search & Filter:** - **Global Search:** Find any member by Name, Phone, or Discipler.
+    - **Milestone Filter:** Toggle to show only users approaching **3, 5, or 10-year anniversaries**.
+    - **Role Filter:** View by category (Admin, Core Leader, Usher, Volunteer).
 - **Unified Profile Management:**
-    - **Edit All Profiles:** Centralized interface to correct typos for the entire database. 
-    - **Tenure Management:** Ability to adjust **Service Start Dates** for regular Ushers to ensure award accuracy.
-    - **Account Linking:** If a Volunteer later signs in with Google, Admins use this view to merge the "Volunteer Profile" into the new "Google Profile" to keep their service history intact.
-    - **Status Control:** Toggle `ACTIVE`, `PENDING`, or `DISABLED` for any user.
+    - **Universal Tenure View:** Displays "Years of Service" and "Start Date" for **all** profiles (Leaders and Ushers alike).
+    - **Milestone Badging:** Visual icons (Bronze/Silver/Gold) appear next to any name that has crossed a tenure threshold.
+    - **Edit All Profiles:** Centralized interface for Admins to fix typos or manually adjust `service_start_date` for legacy members.
+    - **Account Linking:** Tool to merge a Volunteer’s phone-based history into a new Google-linked Usher profile.
+    - **Status Control:** Toggle `ACTIVE`, `PENDING`, or `DISABLED` to manage roster access.
