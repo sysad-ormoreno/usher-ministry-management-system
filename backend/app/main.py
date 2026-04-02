@@ -1,3 +1,9 @@
+"""
+FILE: main.py
+SOURCE DOC: docs/00-architecture-decisions.md
+DESCRIPTION: Entry point for FastAPI. Initializes database tables and includes all API routers.
+"""
+
 from fastapi import FastAPI
 from . import models
 from .database import engine
