@@ -1,3 +1,12 @@
+"""
+FILE: models.py
+PRIMARY SOURCE: docs/04-data-model-implementation.md
+SECONDARY SOURCE: docs/11-backend-implementation-logic.md
+
+WARNING: This is the 'Single Source of Truth' for the database schema.
+Changes here require a Database Migration (Alembic) and updates to all Routers.
+"""
+
 from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, Time
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
