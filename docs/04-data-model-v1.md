@@ -12,7 +12,7 @@
 - **user_profiles:**
     - `user_id` (FK to users)
     - `first_name`, `last_name`
-    - `phone_number` (Unique Index - our primary key for Volunteers)
+    - `phone_number` (Unique Index - primary key for Volunteers)
     - `edit_pin` (Hashed, 4-digit - for Volunteers)
     - `discipler_name`
     - `birthday`
@@ -20,14 +20,14 @@
     - `created_at`
 
 ### **Events & Schedule**
-- **event_templates:** (To generate weekly services automatically)
+- **event_templates:** (For automatic generation)
     - `id`, `name`, `type` (SUNDAY, MIDWEEK, SPECIAL), `default_target`
 - **event_instances:**
     - `id` (PK)
     - `template_id` (FK)
     - `date` (Date)
     - `start_time`, `end_time`
-    - `capacity_limit` (Mainly for Special Events)
+    - `capacity_limit` (For Special Events)
 - **service_slots:** (Specific to Sunday)
     - `id` (PK)
     - `event_instance_id` (FK)
@@ -43,6 +43,7 @@
     - `arrival_time` (Commitment time)
     - `state` (ENUM: REGISTERED, PRESENT, ABSENT, EXCUSED, CANCELLED)
     - `is_aisle_leader` (Boolean, Default: False)
+    - `updated_by` (FK to users) — Tracks the last person to modify the record
     - `created_at`, `updated_at`
 - **registration_slots:** (Many-to-Many for Sunday)
     - `registration_id` (FK)
@@ -52,19 +53,27 @@
 - **notifications:**
     - `id`, `user_id` (FK), `title`, `message`, `is_read`, `link_to_event_id`, `created_at`
 - **audit_log:**
-    - `id`, `actor_id` (User who did the change), `action` (e.g., "MOVED_REGISTRATION"), `target_id`, `timestamp`, `metadata` (JSON of old vs new values)
+    - `id` (UUID, PK)
+    - `actor_id` (FK to users) — The Leader/User who performed the action
+    - `target_user_id` (FK to users) — The Usher being modified
+    - `registration_id` (FK to registrations)
+    - `action_type` (e.g., "STATUS_CHANGE", "SLOT_MOVE", "ASSIGN_AISLE")
+    - `previous_state` (JSON) — e.g., `{"state": "REGISTERED"}`
+    - `new_state` (JSON) — e.g., `{"state": "ABSENT"}`
+    - `timestamp`
 
 ## 3. Data Logic & Constraints
 
 ### **Volunteer vs. Member Logic**
-- **Volunteer:** Created in `users` with `role: VOLUNTEER` and `google_id: NULL`. Identified via `phone_number` in `user_profiles`.
-- **Member:** Linked via `google_id`. 
-- **The "Link" Rule:** If a Volunteer joins as a Member later, the Admin updates the existing `user` record with their `google_id` and changes the role to `USHER`.
+- **Volunteer:** Identified via `phone_number` in `user_profiles`. `google_id` is NULL.
+- **The "Link" Rule:** If a Volunteer becomes an official Member, the Admin updates their existing record with a `google_id` and changes the role to `USHER`.
 
-### **The Sunday Logic**
-- A Sunday `event_instance` has 3 `service_slots`.
-- A single `registration` record can link to multiple `service_slots` via the `registration_slots` table (e.g., an usher serving 1st and 2nd slots).
+### **Recovery & History Logic**
+- **Undo Capability:** The system allows a "revert" by checking the `previous_state` in the `audit_log` and patching the `registrations` table back to that value.
+- **Transparency:** Core Leaders can view the history of a registration to see who marked a member `ABSENT` or `PRESENT` and at what time.
 
-### **The Privacy Layer (API View Logic)**
-- **Public/Usher API View:** Aggregates `registrations` grouped by `service_slot_id` to return `current_count`. 
-- **Leader API View:** Joins `registrations` with `user_profiles` to return names and phone numbers.
+### **The Sunday & Privacy Logic**
+- **The Sunday Logic:** A single registration can link to multiple `service_slots` (e.g., serving 1st and 2nd slots).
+- **Privacy Layer:** 
+    - **Ushers:** Only see aggregate `current_count` from `registrations` joins. 
+    - **Leaders:** Join `registrations` with `user_profiles` to access names and phone numbers.
