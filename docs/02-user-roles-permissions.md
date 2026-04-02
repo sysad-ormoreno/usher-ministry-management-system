@@ -1,36 +1,32 @@
 # 02-user-roles-permissions.md
 
-## 1. User Status (The Global Gatekeeper)
-| Status | Authentication | API Access |
-| :--- | :--- | :--- |
-| **ACTIVE** | Allowed | Full access based on Role. |
-| **PENDING** | Allowed | Restricted to "Waiting Room" (Review Status) view. |
-| **INACTIVE/DISABLED** | Denied | Hard block; Redirected to "Contact Admin" page. |
+## 1. User Status (Account Level)
+- **ACTIVE**: Can authenticate and access the dashboard.
+- **PENDING**: Can authenticate but only sees "Review in Progress" screen.
+- **DISABLED**: Blocked from all system interactions.
 
 ## 2. Role-Based Access Control (RBAC)
 
 ### **Role: USHER**
-- **Read:** Upcoming events (Dates, Slots, Ideal Targets, Current Counts).
-- **Write:** Create/Edit/Withdraw **own** registrations.
-- **Constraint:** Subject to the **24-hour lockout** rule.
-- **Privacy:** Restricted from seeing names/contacts of others.
+- **Actions:** View events, register, edit/withdraw own slots.
+- **Constraint:** Lockout applies 24 hours before event start.
+- **Visibility:** No access to other members' names/contacts.
 
 ### **Role: CORE_LEADER**
-- **Inheritance:** Includes all **USHER** permissions (for their own serving slots).
-- **Read:** Full Roster (Names, Phone Numbers, Discipler) for all events.
-- **Write (Override):** Can Edit, Move, or Withdraw **any** registration (Usher, Volunteer, or fellow Core Leader).
-- **Constraint:** **Exempt** from the 24-hour lockout rule (can manage roster in real-time).
-- **Write:** Assign/Unassign "Aisle Leader" status.
+- **Inheritance:** Includes all **USHER** permissions for their own schedule.
+- **Visibility:** Full access to names, phone numbers, and discipler info for all registrants.
+- **Management (Exempt from 24hr Lockout):**
+    - **Move Registration:** Can shift any user (Usher/Volunteer) to a different slot or date.
+    - **Mark Attendance:** Can update a registration status to `PRESENT`, `ABSENT`, or `EXCUSED`.
+    - **Aisle Assignment:** Can toggle `is_aisle_leader` for any active registration.
+- **Deletion Rule:** Core Leaders should primarily use `ABSENT` or `EXCUSED` status rather than deleting records, to preserve data for burnout monitoring.
 
 ### **Role: ADMIN**
 - **Inheritance:** Includes all **CORE_LEADER** permissions.
-- **Write:** System-wide User Management (Change Status: PENDING -> ACTIVE).
-- **Write:** Role Management (Promote/Demote users).
-- **Config:** Set "Ideal Targets" and Event Templates.
-
----
+- **Account Mgmt:** Approve `PENDING` users; change Roles; Disable accounts.
+- **System Config:** Manage "Ideal Target" numbers and Global Event Templates.
 
 ## 3. Volunteer Access (PIN-Based)
-- **Validation:** Phone Number + Edit PIN.
-- **Write:** Update commitment time/slot for the **current registered instance only**.
-- **Constraint:** Cannot move to a different date. Cannot see any "Usher" dashboards.
+- **Auth:** Phone Number + 4-digit Edit PIN.
+- **Actions:** Update commitment time or Sunday slot for the specific instance only.
+- **Withdrawal:** Can mark themselves as `CANCELLED` (if before lockout).
