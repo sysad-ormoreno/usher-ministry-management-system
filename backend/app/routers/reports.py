@@ -53,8 +53,8 @@ def get_birthdays_by_month(month_number: int, db: Session = Depends(get_db)):
 @router.get("/tenure-audit")
 def get_tenure_audit(db: Session = Depends(get_db)):
     """
-    Calculates exact years served and identifies upcoming or overdue 3, 5, and 10-year milestones.
-    Useful for planning recognition events (e.g., the May awards).
+    Calculates exact years served and identifies overdue milestones 
+    based on the highest watermark principle.
     """
     today = date.today()
     users = db.query(models.User).filter(models.User.service_start_date != None).all()
@@ -64,36 +64,37 @@ def get_tenure_audit(db: Session = Depends(get_db)):
 
     for user in users:
         start = user.service_start_date
-        
-        # Calculate years served using 365.25 to account for leap years
         total_days_served = (today - start).days
         years_served = total_days_served / 365.25
         
-        # Logic: Find highest milestone already passed
+        # 1. Find highest milestone they qualify for (e.g., 10)
         past_milestone = max([m for m in milestone_targets if m <= years_served], default=0)
         
-        # Logic: Find the next milestone they are approaching
+        # 2. Find the next milestone approaching
         next_milestone = min([m for m in milestone_targets if m > years_served], default=None)
         
-        # Calculate the countdown to the next milestone
+        # 3. Calculate days until next (with Leap Year safety)
         days_until = None
         if next_milestone:
             try:
-                # Try to find the exact anniversary date
                 next_date = start.replace(year=start.year + next_milestone)
                 days_until = (next_date - today).days
             except ValueError:
-                # Leap year fallback (if they started on Feb 29)
                 next_date = start + timedelta(days=next_milestone * 365.25)
                 days_until = (next_date - today).days
+
+        # 4. THE HIGHEST WATERMARK LOGIC
+        # If they earned a 10 but last_recognized is 0, 3, or 5, they are OVERDUE.
+        is_overdue = past_milestone > user.last_recognized_milestone
 
         report.append({
             "name": user.full_name,
             "years_served_exact": round(years_served, 2),
-            "highest_past_milestone": past_milestone,
+            "highest_eligible_milestone": past_milestone, 
+            "last_recognized_in_db": user.last_recognized_milestone,
+            "status": "OVERDUE RECOGNITION" if is_overdue else "UP TO DATE",
             "next_upcoming_milestone": next_milestone,
-            "days_until_next": days_until,
-            "status": "OVERDUE RECOGNITION" if past_milestone > 0 else "ON TRACK"
+            "days_until_next": days_until
         })
         
     return report
