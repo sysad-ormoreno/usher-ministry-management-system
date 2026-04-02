@@ -3,6 +3,7 @@
 ## 1. User Eligibility
 - **Active Status:** Only users with `status: ACTIVE` (Members) or a valid **Phone + PIN** session (Volunteers) can create or modify registrations.
 - **Pending/Disabled:** These users can view the dashboard but all "Register," "Edit," and "Move" buttons must be server-side disabled.
+- **Tenure Eligibility:** The `service_start_date` field is mandatory for `USHER` profiles during the initial Profile Setup Form but is hidden/omitted for `VOLUNTEER` profiles.
 
 ## 2. Timing & Lockout Rules
 - **The 24-Hour Rule:** Edit and Withdraw actions are locked exactly 24 hours before the `service_slot.start_time`.
@@ -27,3 +28,8 @@
 ## 6. Core Leader Overrides (Permissions)
 - **Lockout Bypass:** Core Leaders and Admins are **exempt** from the 24-hour lockout. They can Move or Cancel registrations even 5 minutes before a service.
 - **State Transitions:** Only Leaders can move a registration state from `REGISTERED` to `PRESENT`, `ABSENT`, or `EXCUSED`. Regular Ushers and Volunteers can only toggle between `REGISTERED` and `CANCELLED`.
+- **Tenure Override:** Only **ADMIN** or **CORE_LEADER** roles can modify a `service_start_date` after the initial profile creation to correct legacy member data.
+
+## 7. Profile Data Integrity
+- **No Future Dates:** The `service_start_date` and `birthday` fields must be `date <= current_date`. Any attempt to set a future date must return a `422 Unprocessable Entity`.
+- **Role Consistency:** A `VOLUNTEER` profile cannot have a `service_start_date`. If a Volunteer is promoted to `USHER`, the Admin must manually set this date during the promotion/linking process.
