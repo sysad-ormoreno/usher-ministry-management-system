@@ -9,6 +9,7 @@
     - `google_id` (Unique, Nullable for Volunteers)
     - `role` (ENUM: ADMIN, CORE_LEADER, USHER, VOLUNTEER)
     - `status` (ENUM: ACTIVE, PENDING, DISABLED)
+    - `last_recognized_milestone` (Integer, Default: 0) — **Tracks the highest tenure award the usher has already received.**
 - **user_profiles:**
     - `user_id` (FK to users)
     - `first_name`, `last_name`
@@ -64,13 +65,18 @@
 
 ## 3. Data Logic & Constraints
 
+### **Search & Filtering Logic**
+- **Fuzzy Name Search:** The User API supports a `search` query parameter for case-insensitive partial matching on `full_name`.
+- **Role Filtering:** The User API supports a `role` query parameter for exact matches to isolate specific usher groups.
+
 ### **Registration Integrity**
-- **Movement Policy:** When a registration is moved to a new date, the `event_instance_id` is updated. All associated `registration_slots` entries for the old date are purged; the user must re-select slots for the new date to ensure commitment time validity.
-- **Lockout Calculation:** The 24-hour lockout is calculated programmatically: `lockout_timestamp = service_slot.start_time - 24 hours`.
-- **The "No-Delete" Policy:** Registrations are never hard-deleted. "Withdrawals" are recorded as `state = CANCELLED` to maintain service history and burnout analytics.
+- **Movement Policy:** When a registration is moved to a new date, the `event_instance_id` is updated. All associated `registration_slots` entries for the old date are purged.
+- **Lockout Calculation:** The 24-hour lockout is calculated: `lockout_timestamp = service_slot.start_time - 24 hours`.
+- **The "No-Delete" Policy:** Registrations are never hard-deleted. "Withdrawals" are recorded as `state = CANCELLED`.
 
 ### **Tenure & Profile Logic**
-- **Tenure Accuracy:** `service_start_date` defaults to the date of first registration but must be manually editable by Admins to account for legacy members who served before the app's launch.
+- **Tenure Accuracy:** `service_start_date` defaults to the date of first registration but is manually editable by Admins for legacy members.
+- **Milestone Tracking:** The `last_recognized_milestone` uses the "Highest Watermark" principle. Updating this to a higher number (e.g., 10) automatically clears the "Overdue" status for all lower milestones (3, 5).
 - **Profile Corrections:** Any administrative change to a user's name, phone, or service date must generate a `PROFILE_EDIT` entry in the `audit_log`.
 
 ### **Volunteer vs. Member Logic**
@@ -79,7 +85,7 @@
 
 ### **Recovery & History Logic**
 - **Undo Capability:** System allows reverting changes by applying `previous_state` from the most recent `audit_log` entry.
-- **Transparency:** Leaders can view the `audit_log` per registration to track state changes (e.g., who changed a status from ABSENT to PRESENT).
+- **Transparency:** Leaders can view the `audit_log` per registration to track state changes.
 
 ### **Privacy Layer** - **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
 - **Leaders:** API joins `registrations` with `user_profiles` for full identity visibility.
