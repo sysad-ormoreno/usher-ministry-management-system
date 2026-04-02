@@ -57,7 +57,8 @@
     - **Aisle Leader:** Toggle switch to assign/unassign the "Aisle Leader" duty.
     - **Attendance Tracking:** Action buttons to update state to `PRESENT`, `ABSENT`, or `EXCUSED`.
     - **Override Management:** `Move` button to manually shift a user to a different slot or date. 
-        - **Logic:** Moving a registration clears old slot selections and requires re-selection for the new date to ensure valid commitment times.
+    - **Profile Correction:** Ability to click a user's name to open a **Quick Edit Modal** to fix typos in Name, Phone, or Discipler.
+        - **Logic:** Any change is logged in the `audit_log` as an administrative update.
 
 ## 6) Notifications
 - **Interface:** Bell icon in the app header with a red unread count badge.
@@ -65,3 +66,11 @@
     - Duty assignments (e.g., "Assigned as Aisle Leader for 2nd Slot").
     - Automated reminders (e.g., "24 hours until Sunday Service - Last chance to edit").
 - **Interaction:** Clicking a notification item deep-links the user directly to the relevant Event Detail or Sunday Slot page.
+
+## 7) Admin: User Directory (Cleanup)
+- **Access:** Restricted to `ADMIN` and `CORE_LEADER` roles.
+- **Search:** Global search by Name, Phone, or Discipler.
+- **Actions:**
+    - **Edit Profile:** Centralized area to correct typos or update discipler names for all users (Ushers and Volunteers).
+    - **Status Toggle:** Change user status (e.g., `ACTIVE` to `DISABLED` or `PENDING` to `ACTIVE`).
+    - **Volunteer Promotion:** Link a Volunteer record to a Google ID once they become a regular Usher.
