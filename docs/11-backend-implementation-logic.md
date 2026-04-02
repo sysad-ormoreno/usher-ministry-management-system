@@ -5,22 +5,22 @@
 **Constraint:** arrival_time <= (slot_start_time + 30 minutes)
 
 ### Reference Implementation (Python/FastAPI)
-[CODE START]
-from datetime import datetime, timedelta
-from fastapi import HTTPException, status
 
-def validate_sunday_slots(arrival_time: datetime, slots: list):
-    # 30-minute window for operational readiness
-    GRACE_WINDOW = timedelta(minutes=30)
-    
-    for slot in slots:
-        if arrival_time > (slot.start_time + GRACE_WINDOW):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Late Arrival: {arrival_time.strftime('%I:%M %p')} exceeds cutoff."
-            )
-    return True
-[CODE END]
+    from datetime import datetime, timedelta
+    from fastapi import HTTPException, status
+
+    def validate_sunday_slots(arrival_time: datetime, slots: list):
+        # 30-minute window for operational readiness
+        GRACE_WINDOW = timedelta(minutes=30)
+        
+        for slot in slots:
+            # Check if arrival is past the start time + grace period
+            if arrival_time > (slot.start_time + GRACE_WINDOW):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=f"Late Arrival: {arrival_time.strftime('%I:%M %p')} exceeds cutoff."
+                )
+        return True
 
 ---
 
@@ -36,23 +36,24 @@ def validate_sunday_slots(arrival_time: datetime, slots: list):
 5. Log: Create a new audit entry of type REVERT_ACTION.
 
 ### Reference Implementation (Python/SQLAlchemy)
-[CODE START]
-@router.post("/registrations/{reg_id}/revert")
-async def revert_registration_state(reg_id: UUID, db: Session, current_user: User):
-    last_log = db.query(AuditLog).filter(AuditLog.registration_id == reg_id).order_by(AuditLog.timestamp.desc()).first()
 
-    if not last_log or not last_log.previous_state:
-        raise HTTPException(status_code=404, detail="No revertible history.")
+    @router.post("/registrations/{reg_id}/revert")
+    async def revert_registration_state(reg_id: UUID, db: Session, current_user: User):
+        last_log = db.query(AuditLog).filter(
+            AuditLog.registration_id == reg_id
+        ).order_by(AuditLog.timestamp.desc()).first()
 
-    old_data = last_log.previous_state 
-    registration = db.query(Registration).get(reg_id)
-    
-    registration.state = old_data.get("state", registration.state)
-    registration.is_aisle_leader = old_data.get("is_aisle_leader", registration.is_aisle_leader)
-    
-    db.commit()
-    return {"message": "Revert successful"}
-[CODE END]
+        if not last_log or not last_log.previous_state:
+            raise HTTPException(status_code=404, detail="No revertible history found.")
+
+        old_data = last_log.previous_state 
+        registration = db.query(Registration).get(reg_id)
+        
+        registration.state = old_data.get("state", registration.state)
+        registration.is_aisle_leader = old_data.get("is_aisle_leader", registration.is_aisle_leader)
+        
+        db.commit()
+        return {"message": "Revert successful"}
 
 ---
 
@@ -61,19 +62,18 @@ async def revert_registration_state(reg_id: UUID, db: Session, current_user: Use
 **Requirement:** Account for leap years using a 365.25 day divisor.
 
 ### Reference Implementation (Python)
-[CODE START]
-from datetime import date
 
-def calculate_tenure_milestone(service_start_date: date):
-    if not service_start_date:
-        return None
+    from datetime import date
+
+    def calculate_tenure_milestone(service_start_date: date):
+        if not service_start_date:
+            return None
+            
+        days_served = (date.today() - service_start_date).days
+        years_served = days_served / 365.25
+
+        if years_served >= 10: return "GOLD"
+        if years_served >= 5: return "SILVER"
+        if years_served >= 3: return "BRONZE"
         
-    days_served = (date.today() - service_start_date).days
-    years_served = days_served / 365.25
-
-    if years_served >= 10: return "GOLD"
-    if years_served >= 5: return "SILVER"
-    if years_served >= 3: return "BRONZE"
-    
-    return None
-[CODE END]
+        return None
