@@ -4,7 +4,8 @@
 - `POST /auth/google`: Exchanges Google Token for a JWT.
 - `POST /auth/volunteer/login`: Validates `phone_number` + `edit_pin`. Returns a restricted JWT.
 - `GET /me`: Returns the current User/Volunteer profile and Role.
-- `PATCH /me/profile`: Update personal details (Phone, Birthday, Preferred Schedule).
+- `PATCH /me/profile`: Update personal details (Phone, Birthday, Preferred Schedule, **Service Start Date**).
+    - **Note:** `service_start_date` is only accepted during initial profile setup or for `USHER` roles.
 
 ## 2. Events & Slots
 - `GET /events/upcoming`: 
@@ -37,8 +38,8 @@
 - **User Management (Typo Correction & Directory):**
     - `GET /users`: Searchable list of all Profiles (Ushers + Volunteers).
     - `PATCH /users/{profile_id}`: 
-        - **Body:** `first_name`, `last_name`, `phone_number`, `discipler_name`, `status`.
-        - **Logic:** Allows Admin to fix typos. Logs change in `audit_log`.
+        - **Body:** `first_name`, `last_name`, `phone_number`, `discipler_name`, `status`, **`service_start_date`**.
+        - **Logic:** Allows Admin to fix typos or adjust tenure dates. Logs change in `audit_log`.
     - `POST /users/{profile_id}/link-google`: Links a Volunteer profile to a `google_id` (Promotion).
 - **Assignments:**
     - `PATCH /registrations/{reg_id}/assignment`: Toggles `is_aisle_leader`.
