@@ -1,3 +1,10 @@
+"""
+FILE: routers/users.py
+SOURCE DOC: docs/04-data-model-implementation.md (User Model)
+DEPENDENCIES: models.User
+DESCRIPTION: Handles Usher profiles, roles, and registration identity.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models, database
