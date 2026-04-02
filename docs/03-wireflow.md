@@ -8,7 +8,8 @@
 - **The Logic Bridge (Google Users):**
     1. Authenticate via Google.
     2. Backend checks `google_id` in `Profiles` table.
-    3. **New User:** Redirect to **Profile Setup Form** (First/Last, Phone, Birthday, Discipler, Date Joined Usher Ministry).
+    3. **New User:** Redirect to **Profile Setup Form** (First/Last, Phone, Birthday, Discipler, **Date Joined Usher Ministry**).
+        - **Input Logic:** Date picker defaults to "Today" but allows selection of past dates for legacy members.
     4. **Existing User:** Redirect to **Dashboard**.
 - **The Waiting Room:** Users with `status: PENDING` see a "Review in Progress" screen with access to the **Info Tab** (Manuals/Infographics).
 
@@ -41,7 +42,7 @@
     - **Action:** Confirm registration.
 
 ## 4) Volunteer Flow (No Login)
-- **Registration:** Same form as Sunday/Midweek but includes mandatory fields for `Full Name`, `Phone`, and `Discipler` (Autocomplete enabled).
+- **Registration:** Same form as Sunday/Midweek but includes mandatory fields for `Full Name`, `Phone`, and `Discipler` (Autocomplete enabled). **Note:** Tenure/Start Date tracking is excluded here; it is reserved for regular Members.
 - **Post-Registration:** System generates and displays a **4-digit Edit PIN**. Instructions provided to save for future management.
 - **Management:** 
     1. Enter `Phone Number` + `PIN`.
@@ -59,7 +60,8 @@
     - **Override Management:** `Move` button to manually shift a user to a different slot or date. 
     - **Profile Correction:** Ability to click **any** user's name (Usher or Volunteer) to open a **Quick Edit Modal**.
         - **Editable Fields:** First Name, Last Name, Phone, and Discipler Name.
-        - **Audit Trail:** The system must log: *"Admin [Name] updated Profile [ID] Name from 'Jhon' to 'John'"*.
+        - **Tenure Adjustment:** Editable **only** for `USHER` role profiles (Service Start Date).
+        - **Audit Trail:** The system must log: *"Admin [Name] updated Profile [ID] Name/Tenure"*.
 
 ## 6) Notifications
 - **Interface:** Bell icon in the app header with a red unread count badge.
@@ -72,6 +74,7 @@
 - **Access:** Restricted to `ADMIN` and `CORE_LEADER` roles.
 - **Search:** Global search by Name, Phone, or Discipler.
 - **Unified Profile Management:**
-    - **Edit All Profiles:** Centralized interface to correct typos for the entire database (both Google-linked Ushers and PIN-based Volunteers).
+    - **Edit All Profiles:** Centralized interface to correct typos for the entire database. 
+    - **Tenure Management:** Ability to adjust **Service Start Dates** for regular Ushers to ensure award accuracy.
     - **Account Linking:** If a Volunteer later signs in with Google, Admins use this view to merge the "Volunteer Profile" into the new "Google Profile" to keep their service history intact.
     - **Status Control:** Toggle `ACTIVE`, `PENDING`, or `DISABLED` for any user.
