@@ -4,6 +4,7 @@ SOURCE DOC: docs/11-backend-implementation-logic.md
 DEPENDENCIES: models.User, models.ServiceSlot, models.Registration
 """
 
+import json # New: for the 'Snapshot' logic
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
@@ -53,3 +54,40 @@ def sign_up_for_service(user_id: int, slot_id: int, service_date: date, db: Sess
     db.commit()
     db.refresh(new_reg)
     return new_reg
+
+# 3. PUT: Update attendance with an Audit Trail
+@router.put("/{registration_id}")
+def update_attendance(
+    registration_id: int, 
+    new_state: str, 
+    admin_id: int, 
+    db: Session = Depends(get_db)
+):
+    # 1. Fetch the existing record
+    reg = db.query(models.Registration).get(registration_id)
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration not found")
+
+    # 2. CREATE SNAPSHOT (The Banking Ledger Entry)
+    # We convert the current record into a dictionary/JSON string before changing it
+    snapshot = json.dumps({
+        "state": reg.state,
+        "arrival_time": str(reg.arrival_time) if reg.arrival_time else None
+    })
+
+    # 3. CREATE THE AUDIT LOG
+    log_entry = models.AuditLog(
+        registration_id=reg.id,
+        changed_by_id=admin_id,
+        previous_state=snapshot,
+        action_type="UPDATE"
+    )
+    db.add(log_entry)
+
+    # 4. PERFORM THE UPDATE
+    reg.state = new_state
+    
+    # COMMIT BOTH (Atomicity: Both succeed or both fail)
+    db.commit()
+    db.refresh(reg)
+    return {"message": "Attendance updated", "audit_id": log_entry.id}
