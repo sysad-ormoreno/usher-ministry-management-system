@@ -16,12 +16,12 @@
     - `edit_pin` (Hashed, 4-digit - for Volunteers)
     - `discipler_name` (UI utilizes autocomplete based on existing entries)
     - `birthday`
+    - `service_start_date` (Date - Used for 3/5/10-year tenure awards)
     - `preferred_schedule` (Optional)
     - `created_at`
 
 ### **Events & Schedule**
-- **event_templates:** 
-    - `id`, `name`, `type` (SUNDAY, MIDWEEK, SPECIAL), `default_target`
+- **event_templates:** - `id`, `name`, `type` (SUNDAY, MIDWEEK, SPECIAL), `default_target`
 - **event_instances:**
     - `id` (PK)
     - `template_id` (FK)
@@ -57,7 +57,7 @@
     - `actor_id` (FK to users) 
     - `target_user_id` (FK to users) 
     - `registration_id` (FK to registrations)
-    - `action_type` (e.g., "STATUS_CHANGE", "SLOT_MOVE", "ASSIGN_AISLE")
+    - `action_type` (e.g., "STATUS_CHANGE", "SLOT_MOVE", "ASSIGN_AISLE", "PROFILE_EDIT")
     - `previous_state` (JSON) 
     - `new_state` (JSON) 
     - `timestamp`
@@ -69,6 +69,10 @@
 - **Lockout Calculation:** The 24-hour lockout is calculated programmatically: `lockout_timestamp = service_slot.start_time - 24 hours`.
 - **The "No-Delete" Policy:** Registrations are never hard-deleted. "Withdrawals" are recorded as `state = CANCELLED` to maintain service history and burnout analytics.
 
+### **Tenure & Profile Logic**
+- **Tenure Accuracy:** `service_start_date` defaults to the date of first registration but must be manually editable by Admins to account for legacy members who served before the app's launch.
+- **Profile Corrections:** Any administrative change to a user's name, phone, or service date must generate a `PROFILE_EDIT` entry in the `audit_log`.
+
 ### **Volunteer vs. Member Logic**
 - **Volunteer:** Identified via `phone_number`. `google_id` remains NULL.
 - **The "Link" Rule:** If a Volunteer joins as a Member, the Admin updates the record with a `google_id` and changes the role to `USHER`.
@@ -77,6 +81,5 @@
 - **Undo Capability:** System allows reverting changes by applying `previous_state` from the most recent `audit_log` entry.
 - **Transparency:** Leaders can view the `audit_log` per registration to track state changes (e.g., who changed a status from ABSENT to PRESENT).
 
-### **Privacy Layer** 
-- **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
+### **Privacy Layer** - **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
 - **Leaders:** API joins `registrations` with `user_profiles` for full identity visibility.
