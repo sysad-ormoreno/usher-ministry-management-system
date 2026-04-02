@@ -1,10 +1,10 @@
 # 01-product-brief.md: Usher Portal Rebuild (ROG)
 
 ## Primary Users
-- **Regular Usher** (logged in)
-- **Core Leader** (logged in)
-- **Volunteer** (no login; registration only)
-- **Admin** (logged in)
+- **Regular Usher** (logged in via Google)
+- **Core Leader** (logged in via Google)
+- **Volunteer** (no login; phone-based registration)
+- **Admin** (logged in via Google)
 
 ## Event Types
 1) **Sunday Service** (weekly) — 3 slots:
@@ -20,39 +20,42 @@
 ## Key Workflows
 ### Usher
 - View upcoming events grouped by date.
-- Register (can register multiple future dates).
-- Edit registration (including moving to another date/event).
-- Withdraw registration (subject to the 24-hour lockout rule).
+- **Register:** Can sign up for multiple future dates/slots.
+- **Move Registration:** Changing a registration date affects the **entire day's commitment** (the parent Event Instance). If an Usher moves from one Sunday to another, all slot selections for the original day are cleared, and they must select slots for the new date.
+- **Withdraw Registration:** Subject to the precise 24-hour lockout rule.
 
 ### Core Leader
-- View full roster (names + volunteer contact info).
-- Assign aisle leader per Sunday slot or special event.
-- See counts vs targets/capacity.
+- **Full Roster:** View names, volunteer contact info, and discipler.
+- **Attendance & Management:** Mark users as `PRESENT`, `ABSENT`, or `EXCUSED`.
+- **Assignment:** Assign "Aisle Leader" per Sunday slot or special event.
+- **Override:** Can Move or Edit any registration regardless of the 24-hour lockout.
 
-### Volunteer
-- Register without login using: Full Name, Phone Number, Discipler, and Commitment Time.
-- **Identity Logic:** The system uses the Phone Number as a unique identifier to track repeated volunteer activity without requiring a Google account.
-- **Limited Access:** Volunteers cannot edit or withdraw their own entries via the portal; manual intervention by a Core Leader or Admin is required for changes.
+### Volunteer (Guest)
+- **Registration:** Uses Full Name, Phone Number, Discipler (with Autocomplete), and Commitment Time.
+- **Identity Logic:** Phone Number serves as the unique identifier.
+- **Self-Management:** Can Edit or Withdraw their own entry using a **4-digit PIN** provided at registration. 
+- **No Deletion:** When a Volunteer withdraws, the record is marked as `CANCELLED` in the database to preserve reliability data (no hard deletes).
 
 ### Admin
-- Approve pending members (status change to ACTIVE).
-- Manage core leaders.
-- Configure schedule defaults (future).
+- **User Management:** Approve `PENDING` members to `ACTIVE`.
+- **Role Management:** Promote/Demote Core Leaders.
+- **System Config:** Manage event templates and ideal targets.
 
 ## Constraints & Rules
-### Privacy
-- **Regular Ushers:** Restricted to seeing aggregate counts and targets; individual names or contact details are hidden to maintain privacy.
-- **Core Leaders:** Full visibility of roster names and contact details for operational management and coordination.
+### Privacy & Data Integrity
+- **Regular Ushers:** See aggregate counts and targets only.
+- **Core Leaders:** Full visibility for operational coordination.
+- **Discipler Entry:** To maintain data cleanliness, the UI provides an **Autocomplete/Suggestion** list based on existing names in the database to prevent duplicate variations (e.g., "Pst. John" vs "Pastor John").
 
 ### Timing & Eligibility
 - **The Sunday Rule:** A slot is only selectable if the user's `commitment_time` is less than or equal to `slot_start + 30 minutes`.
-- **Lockout Period:** Edit and Withdraw functions are disabled for all users 24 hours prior to the event start time to ensure stable planning.
+- **Precision Lockout:** The 24-hour lockout period is calculated relative to the **specific `service_slot.start_time`**. 
+  - *Example:* If the 1st slot starts at 10:00 AM Sunday, the lockout for that slot begins at 10:00 AM Saturday.
+- **Movement Constraint:** Moving a registration to a new date is treated as a fresh registration for that new day; previous slot data does not "carry over" to ensure slot availability is re-validated.
 
 ### Authentication
-- **Authoritative Status:** Only users with an `ACTIVE` status in the database can log in. `PENDING` or `DISABLED` users are restricted from the dashboard even after Google Auth.
+- **Authoritative Status:** Only `ACTIVE` users can access the dashboard. `PENDING` or `DISABLED` users are redirected to a "Waiting Room" or "Contact Admin" screen after Google Auth.
 
 ## Communication & Mobile Experience
-- **PWA (Progressive Web App):** The portal is built to be "Installed" on mobile home screens, providing a full-screen, native-app feel without an app store.
-- **Push Notifications:** Uses the Web Push API to send real-time alerts for:
-  - **Aisle Leader Assignments:** Notifying an usher when they are given a specific duty.
-  - **Schedule Reminders:** Automatic prompts sent before the 24-hour lockout window begins.
+- **PWA (Progressive Web App):** Optimized for home-screen installation.
+- **Push Notifications:** Real-time alerts for Aisle Leader assignments and reminders sent exactly before the 24-hour lockout window opens.
