@@ -18,7 +18,7 @@
     - **Range Selector:** `Next 2` / `4` / `8 weeks`.
 - **Event List:** Grouped by Date header (e.g., `Sun, Mar 08`).
 - **Cards (Usher/Leader View):**
-    - **Header:** Event Title + Time Range + Status Badge (`REGISTERED`, `PRESENT`, `ABSENT`, `EXCUSED`).
+    - **Header:** Event Title + Time Range + Status Badge (`REGISTERED`, `PRESENT`, `ABSENT`, `EXCUSED`, `CANCELLED`).
     - **Usher Metrics:** `12 registered (Ideal: 15)` or `15/20 (Capacity)`.
     - **Leader Metrics:** Toggle button to "View Roster Names."
 - **Primary Actions:**
@@ -26,6 +26,7 @@
     - `Edit` / `Withdraw` (if registered & before 24hr lockout).
 
 ## 3) Registration Flows
+- **Input Logic (Discipler):** All registration forms use an **Autocomplete/Suggestion** field for "Discipler Name" based on existing database entries to prevent duplicate variations.
 - **Sunday Service:**
     - **Input:** `Arrival Time` (Time Picker).
     - **Slot Selection:** 1st/2nd/3rd checkboxes.
@@ -40,12 +41,13 @@
     - **Action:** Confirm registration.
 
 ## 4) Volunteer Flow (No Login)
-- **Registration:** Same form as Sunday/Midweek but includes mandatory fields for `Full Name`, `Phone`, and `Discipler`.
+- **Registration:** Same form as Sunday/Midweek but includes mandatory fields for `Full Name`, `Phone`, and `Discipler` (Autocomplete enabled).
 - **Post-Registration:** System generates and displays a **4-digit Edit PIN**. Instructions provided to save for future management.
-- **Management:** 1. Enter `Phone Number` + `PIN`.
+- **Management:** 
+    1. Enter `Phone Number` + `PIN`.
     2. View list of active registrations for that specific phone.
     3. **Edit:** Update `Commitment Time` or `Slot` (Restricted to the same day/instance).
-    4. **Withdraw:** Mark registration as `CANCELLED`. (Note: No "Move to another date" option).
+    4. **Withdraw:** Mark registration as `CANCELLED`. **Note:** Records are never deleted; status is changed to preserve reliability history.
 
 ## 5) Core Leader: Management View
 - **Event Detail Page:**
@@ -54,7 +56,8 @@
 - **Management Actions:**
     - **Aisle Leader:** Toggle switch to assign/unassign the "Aisle Leader" duty.
     - **Attendance Tracking:** Action buttons to update state to `PRESENT`, `ABSENT`, or `EXCUSED`.
-    - **Override Management:** `Move` button to manually shift a user to a different slot or date (Exempt from 24hr lockout).
+    - **Override Management:** `Move` button to manually shift a user to a different slot or date. 
+        - **Logic:** Moving a registration clears old slot selections and requires re-selection for the new date to ensure valid commitment times.
 
 ## 6) Notifications
 - **Interface:** Bell icon in the app header with a red unread count badge.
