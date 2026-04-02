@@ -1,41 +1,41 @@
-# Roles & Permissions
+# 02-user-roles-permissions.md
 
-## Roles
-- ADMIN
-- CORE_LEADER
-- USHER
+## 1. User Status (The Global Gatekeeper)
+| Status | Authentication | API Access |
+| :--- | :--- | :--- |
+| **ACTIVE** | Allowed | Full access based on Role. |
+| **PENDING** | Allowed | Restricted to "Waiting Room" view only. |
+| **INACTIVE/DISABLED** | Denied | No access; redirected to "Account Disabled" page. |
 
-## Status (authoritative)
-- ACTIVE: can login/register
-- PENDING: cannot login/register
-- INACTIVE/DISABLED: cannot login/register
+## 2. Role-Based Access Control (RBAC)
 
-## Permissions Matrix (MVP)
-### USHER
-- View upcoming events/services
-- View counts + targets/capacity (no names)
-- Create/edit/move/withdraw own registrations
-- View own notifications
+### **Role: USHER**
+- **Read:** Upcoming events (Dates, Slots, Ideal Targets, Current Counts).
+- **Write:** Create/Edit/Withdraw own registrations (subject to 24hr lockout).
+- **Profile:** View/Update own basic profile details (Discipler, preferred schedule).
+- **Restrictions:** **CANNOT** see names or contact info of other ushers.
 
-### CORE_LEADER
-- All USHER permissions
-- View roster names/details for any event
-- Assign aisle leader
-- Create/manage special events (optional MVP; can be admin-only if preferred)
+### **Role: CORE_LEADER**
+- **Inheritance:** Includes all **USHER** permissions.
+- **Read:** Full Roster (Names, Phone Numbers, Discipler names) for all events.
+- **Write:** Assign/Unassign "Aisle Leader" status to any registered Usher.
+- **Special:** View "Volunteer" details to follow up on newcomers.
 
-### ADMIN
-- All CORE_LEADER permissions
-- Approve members (PENDING -> ACTIVE)
-- Manage roles
-- System settings (targets, schedule templates) (phase 2 if not MVP)
+### **Role: ADMIN**
+- **Inheritance:** Includes all **CORE_LEADER** permissions.
+- **Write:** Change User Status (e.g., PENDING -> ACTIVE).
+- **Write:** Promote/Demote Roles (e.g., USHER -> CORE_LEADER).
+- **System:** Define "Ideal Targets" per service slot.
 
-### VOLUNTEER (no login)
-Volunteers can:
-- Register for an event/service (with name, phone, discipler, commitment time)
-- Edit their registration **only for the same event instance**
-  - Allowed: commitment time, Sunday slot selection (if Sunday)
-  - Not allowed: move to another date/event instance
-- Withdraw (cancel) their registration
+---
 
-Volunteers authenticate for editing via:
-- phone number + edit PIN (shown once at registration time)
+## 3. The Volunteer Exception (Non-Authenticated)
+Volunteers interact with a separate set of "Public" endpoints.
+- **Identity:** Verified via `Phone Number` + `Edit PIN`.
+- **Allowed Actions:**
+    - Register for a specific event.
+    - Update `commitment_time` or `Sunday slot` for that specific instance.
+    - Cancel (Withdraw) their registration.
+- **Locked Actions:**
+    - Cannot "Move" to a different date (must cancel and re-register).
+    - Cannot access any Usher-only dashboard or counts.
