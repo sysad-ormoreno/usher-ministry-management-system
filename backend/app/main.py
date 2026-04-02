@@ -16,7 +16,8 @@ app = FastAPI(title="Usher Management System")
 
 # This connects the /users routes to the main app
 app.include_router(users.router)
-app.include_router(slots.router) # Added this line
+app.include_router(slots.router)
+app.include_router(registrations.router)
 
 @app.get("/")
 def read_root():
