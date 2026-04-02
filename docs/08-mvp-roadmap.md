@@ -1,4 +1,4 @@
-# 12-mvp-roadmap.md
+# 08-mvp-roadmap.md
 
 ## Sprint 0: Foundation & Auth (Infrastructure)
 - [ ] **Environment:** FastAPI/PostgreSQL repo setup + CI/CD pipeline.
