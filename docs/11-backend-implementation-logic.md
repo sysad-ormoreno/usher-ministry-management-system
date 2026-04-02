@@ -1,7 +1,7 @@
 # 11-backend-implementation-logic.md
 
 ## 1. The Sunday Rule (Grace Period Validation)
-**Objective:** Prevent ushers from signing up for slots they arrive too late for.
+**Objective:** Prevent ushers from signing up for slots they arrive too late for.  
 **Constraint:** arrival_time <= (slot_start_time + 30 minutes)
 
 ### Reference Implementation (Python/FastAPI)
