@@ -15,7 +15,6 @@ router = APIRouter(
     tags=["Users"]
 )
 
-# Dependency to get the database session
 def get_db():
     db = database.SessionLocal()
     try:
@@ -25,26 +24,23 @@ def get_db():
 
 @router.get("/")
 def get_users(search: Optional[str] = None, role: Optional[str] = None, db: Session = Depends(get_db)):
-    """
-    Returns a list of ushers. 
-    - If no parameters: Returns everyone.
-    - If 'search' is provided: Filters by name (e.g., 'Don' -> 'Donny').
-    - If 'role' is provided: Filters by role (e.g., 'CORE_LEADER').
-    """
     query = db.query(models.User)
     
     if search:
-        # Fuzzy search on name
         query = query.filter(models.User.full_name.contains(search))
     
     if role:
-        # Exact filter on role
         query = query.filter(models.User.role == role)
     
     return query.all()
 
 @router.post("/")
 def create_user(name: str, phone: str, db: Session = Depends(get_db)):
+    # Basic check for existing user to prevent duplicates if you double-click
+    existing = db.query(models.User).filter(models.User.full_name == name).first()
+    if existing:
+        return existing # Just return the existing one instead of crashing
+
     new_user = models.User(full_name=name, phone_number=phone)
     db.add(new_user)
     db.commit()
