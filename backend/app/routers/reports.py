@@ -4,10 +4,10 @@ SOURCE DOC: New Requirement (Core Leader Birthday Dashboard & Tenure Milestones)
 DEPENDENCIES: models.User
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import extract, func
 from sqlalchemy.orm import Session
-from datetime import date, timedelta # Added for Tenure math
+from datetime import date, timedelta
 from .. import models, database
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
@@ -21,28 +21,24 @@ def get_db():
 
 @router.get("/birthdays/summary")
 def get_birthday_summary(db: Session = Depends(get_db)):
-    """
-    Returns a list of months with the count of ushers having birthdays.
-    Example: [{"month": 1, "count": 5}, {"month": 2, "count": 3}]
-    """
-    # We use 'extract' to get the month number from the date column
+    # Added filter to ignore null birth_dates so the 'count' is accurate
     results = db.query(
         extract('month', models.User.birth_date).label('month'),
         func.count(models.User.id).label('count')
-    ).group_by('month').all()
+    ).filter(models.User.birth_date != None).group_by('month').all()
     
-    return results
+    # Transform to list of dicts so the Frontend gets clear keys
+    return [{"month": int(r.month), "count": r.count} for r in results]
 
 @router.get("/birthdays/{month_number}")
 def get_birthdays_by_month(month_number: int, db: Session = Depends(get_db)):
-    """
-    Returns names and birthdates (Month/Day only) for a specific month.
-    """
     users = db.query(models.User).filter(
         extract('month', models.User.birth_date) == month_number
     ).all()
     
-    # We transform the data here to HIDE the year
+    if not users:
+        return [] # Return empty list instead of null
+
     return [
         {
             "name": u.full_name,
@@ -52,10 +48,6 @@ def get_birthdays_by_month(month_number: int, db: Session = Depends(get_db)):
 
 @router.get("/tenure-audit")
 def get_tenure_audit(db: Session = Depends(get_db)):
-    """
-    Calculates exact years served and identifies overdue milestones 
-    based on the highest watermark principle.
-    """
     today = date.today()
     users = db.query(models.User).filter(models.User.service_start_date != None).all()
     
@@ -67,24 +59,18 @@ def get_tenure_audit(db: Session = Depends(get_db)):
         total_days_served = (today - start).days
         years_served = total_days_served / 365.25
         
-        # 1. Find highest milestone they qualify for (e.g., 10)
         past_milestone = max([m for m in milestone_targets if m <= years_served], default=0)
-        
-        # 2. Find the next milestone approaching
         next_milestone = min([m for m in milestone_targets if m > years_served], default=None)
         
-        # 3. Calculate days until next (with Leap Year safety)
         days_until = None
         if next_milestone:
             try:
                 next_date = start.replace(year=start.year + next_milestone)
                 days_until = (next_date - today).days
-            except ValueError:
+            except ValueError: # Leap year safety
                 next_date = start + timedelta(days=next_milestone * 365.25)
                 days_until = (next_date - today).days
 
-        # 4. THE HIGHEST WATERMARK LOGIC
-        # If they earned a 10 but last_recognized is 0, 3, or 5, they are OVERDUE.
         is_overdue = past_milestone > user.last_recognized_milestone
 
         report.append({
