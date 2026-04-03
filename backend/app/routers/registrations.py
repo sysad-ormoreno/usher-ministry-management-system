@@ -67,6 +67,7 @@ def sign_up_for_service(user_id: int, slot_id: int, service_date: date, db: Sess
     
     db.add(log_entry)
     db.commit() 
+    db.refresh(new_reg) # Refresh one last time to ensure all data is present
     
     return new_reg
 
@@ -99,7 +100,9 @@ def update_attendance(
     reg.state = new_state
     db.commit()
     db.refresh(reg)
-    return {"message": "Attendance updated", "audit_id": log_entry.id}
+    
+    # Returning the full registration object instead of just a message
+    return reg
 
 # 4. POST: Revert to a previous state
 @router.post("/{registration_id}/revert/{log_id}")
@@ -119,3 +122,24 @@ def revert_registration(
         raise HTTPException(status_code=404, detail="Audit log entry not found")
 
     reg = db.query(models.Registration).get(registration_id)
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration record not found")
+
+    old_data = json.loads(log.previous_state)
+    reg.state = old_data["state"]
+    reg.arrival_time = old_data.get("arrival_time") 
+
+    reversion_log = models.AuditLog(
+        target_id=reg.id,
+        target_type="REGISTRATION",
+        actor_id=admin_id,
+        previous_state=json.dumps({"info": f"Reverting from log {log_id}"}),
+        action_type="REVERT"
+    )
+    
+    db.add(reversion_log)
+    db.commit()
+    db.refresh(reg)
+    
+    # Returning the restored registration object instead of 'null'
+    return reg
