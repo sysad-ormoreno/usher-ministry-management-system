@@ -1,6 +1,6 @@
 """
 FILE: models.py
-PRIMARY SOURCE: docs/04-data-model-implementation.md
+PRIMARY SOURCE: docs/04-data-model.md
 SECONDARY SOURCE: docs/11-backend-implementation-logic.md
 
 WARNING: This is the 'Single Source of Truth' for the database schema.
@@ -45,9 +45,15 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    registration_id = Column(Integer, ForeignKey("registrations.id"))
-    changed_by_id = Column(Integer, ForeignKey("users.id"))
-    # We store the entire old state as a JSON string
-    previous_state = Column(String, nullable=True) 
-    action_type = Column(String) # e.g., "UPDATE", "REVERT"
+    actor_id = Column(Integer, ForeignKey("users.id")) # Person who made the change
+    
+    # Generic targets to allow reverting ANYTHING
+    target_id = Column(Integer)  # ID of the User, Slot, or Registration being changed
+    target_type = Column(String) # "USER", "REGISTRATION", "SERVICE_SLOT"
+    
+    # JSON snapshots for the Time Machine
+    previous_state = Column(String, nullable=True) # JSON string of data BEFORE change
+    new_state = Column(String, nullable=True)      # JSON string of data AFTER change
+    
+    action_type = Column(String) # e.g., "UPDATE", "REVERT", "STATUS_CHANGE"
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
