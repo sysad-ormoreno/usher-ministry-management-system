@@ -4,7 +4,7 @@ SOURCE DOC: docs/00-architecture-decisions.md
 DESCRIPTION: Manages the SQLAlchemy engine and session local factory for SQLite.
 """
 
-from sqlalchemy import create_all, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
