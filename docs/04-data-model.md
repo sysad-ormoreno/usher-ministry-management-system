@@ -46,21 +46,18 @@
     - `is_aisle_leader` (Boolean, Default: False)
     - `updated_by` (FK to users)
     - `created_at`, `updated_at`
-- **registration_slots:** (Many-to-Many for Sunday)
-    - `registration_id` (FK)
-    - `service_slot_id` (FK)
 
 ## 2. Communication & Audit
 - **notifications:**
     - `id`, `user_id` (FK), `title`, `message`, `is_read`, `link_to_event_id`, `created_at`
 - **audit_log:**
     - `id` (UUID, PK)
-    - `actor_id` (FK to users) 
-    - `target_user_id` (FK to users) 
-    - `registration_id` (FK to registrations)
-    - `action_type` (e.g., "STATUS_CHANGE", "SLOT_MOVE", "ASSIGN_AISLE", "PROFILE_EDIT")
-    - `previous_state` (JSON) 
-    - `new_state` (JSON) 
+    - `actor_id` (FK to users) — **Who made the change?**
+    - `target_id` (UUID/Int) — **ID of the impacted record (User, Slot, or Reg)**
+    - `target_type` (String) — **Table name (e.g., "USER", "SERVICE_SLOT", "REGISTRATION")**
+    - `action_type` (e.g., "UPDATE", "REVERT", "STATUS_CHANGE")
+    - `previous_state` (JSON) — **Snapshot of data BEFORE the change**
+    - `new_state` (JSON) — **Snapshot of data AFTER the change**
     - `timestamp`
 
 ## 3. Data Logic & Constraints
@@ -83,9 +80,11 @@
 - **Volunteer:** Identified via `phone_number`. `google_id` remains NULL.
 - **The "Link" Rule:** If a Volunteer joins as a Member, the Admin updates the record with a `google_id` and changes the role to `USHER`.
 
-### **Recovery & History Logic**
-- **Undo Capability:** System allows reverting changes by applying `previous_state` from the most recent `audit_log` entry.
-- **Transparency:** Leaders can view the `audit_log` per registration to track state changes.
+### **Recovery & History Logic (Universal Time Machine)**
+- **Global Undo Capability:** Every administrative change triggers an Audit Log entry. The system provides a universal revert mechanism that applies the `previous_state` JSON back to the record identified by `target_id` and `target_type`.
+- **Accountability:** Reverts are themselves logged as a new `action_type = "REVERT"` to ensure no "silent" changes occur.
+- **Transparency:** Leaders can view the `audit_log` per entity to track the full history of changes.
 
-### **Privacy Layer** - **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
+### **Privacy Layer** 
+- **Ushers:** API returns aggregate counts of `registrations` where `state != CANCELLED`.
 - **Leaders:** API joins `registrations` with `user_profiles` for full identity visibility.
