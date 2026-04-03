@@ -1,19 +1,15 @@
 """
 FILE: routers/users.py
-SOURCE DOC: docs/04-data-model-implementation.md (User Model)
-DEPENDENCIES: models.User
-DESCRIPTION: Handles Usher profiles, roles, and registration identity.
+REVISION: Added Profile Fields for Reports (Birthdays & Tenure)
 """
 
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import date
 from .. import models, database
 
-router = APIRouter(
-    prefix="/users",
-    tags=["Users"]
-)
+router = APIRouter(prefix="/users", tags=["Users"])
 
 def get_db():
     db = database.SessionLocal()
@@ -22,27 +18,33 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/")
-def get_users(search: Optional[str] = None, role: Optional[str] = None, db: Session = Depends(get_db)):
-    query = db.query(models.User)
-    
-    if search:
-        query = query.filter(models.User.full_name.contains(search))
-    
-    if role:
-        query = query.filter(models.User.role == role)
-    
-    return query.all()
-
 @router.post("/")
-def create_user(name: str, phone: str, db: Session = Depends(get_db)):
-    # Basic check for existing user to prevent duplicates if you double-click
-    existing = db.query(models.User).filter(models.User.full_name == name).first()
+def create_user(
+    full_name: str, 
+    phone: str, 
+    role: str = "VOLUNTEER", 
+    birthday: Optional[date] = None, 
+    service_start: Optional[date] = None,
+    db: Session = Depends(get_db)
+):
+    # 1. Check if the phone number is already taken (Our unique index)
+    existing = db.query(models.User).filter(models.User.phone_number == phone).first()
     if existing:
-        return existing # Just return the existing one instead of crashing
+        raise HTTPException(status_code=400, detail="Phone number already registered.")
 
-    new_user = models.User(full_name=name, phone_number=phone)
+    # 2. Create the User with all the "Report-Ready" columns
+    new_user = models.User(
+        full_name=full_name,
+        phone_number=phone,
+        role=role,
+        birth_date=birthday,         # This feeds the Birthday Report
+        service_start_date=service_start, # This feeds the Tenure Report
+        last_recognized_milestone=0,
+        is_active=True
+    )
+    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
     return new_user
