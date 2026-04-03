@@ -29,7 +29,7 @@ def get_registrations(service_date: date, db: Session = Depends(get_db)):
         models.Registration.service_date == service_date
     ).all()
 
-# 2. POST: The actual "Sign Up" logic
+# 2. POST: The actual "Sign Up" logic with Audit Trail
 @router.post("/")
 def sign_up_for_service(user_id: int, slot_id: int, service_date: date, db: Session = Depends(get_db)):
     # VALIDATION 1: Does the user exist?
@@ -47,12 +47,29 @@ def sign_up_for_service(user_id: int, slot_id: int, service_date: date, db: Sess
         user_id=user_id,
         slot_id=slot_id,
         service_date=service_date,
-        state="PENDING" # Default state from our logic doc
+        state="PENDING" 
     )
     
     db.add(new_reg)
-    db.commit()
+    db.commit() # Save the registration first to get an ID
     db.refresh(new_reg)
+
+    # NEW: CREATE INITIAL AUDIT LOG (The "Birth" Certificate)
+    initial_snapshot = json.dumps({
+        "state": new_reg.state,
+        "arrival_time": None
+    })
+    
+    log_entry = models.AuditLog(
+        registration_id=new_reg.id,
+        changed_by_id=user_id, # Using user_id as a placeholder for "self-signup"
+        previous_state=initial_snapshot,
+        action_type="CREATE"
+    )
+    
+    db.add(log_entry)
+    db.commit() # Save the receipt
+    
     return new_reg
 
 # 3. PUT: Update attendance with an Audit Trail
