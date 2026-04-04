@@ -1,5 +1,5 @@
 """
-FILE: routers/admin.py
+FILE: routers/settings.py
 SOURCE DOC: docs/12-system-configuration.md
 DESCRIPTION: Global settings and administrative overrides.
 """
