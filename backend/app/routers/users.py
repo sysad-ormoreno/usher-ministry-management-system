@@ -1,9 +1,9 @@
 """
 FILE: routers/users.py
-REVISION: Added Profile Fields for Reports (Birthdays & Tenure)
+REVISION: Restored GET and Added Profile Fields for Reports
 """
 
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
@@ -18,6 +18,32 @@ def get_db():
     finally:
         db.close()
 
+# --- 1. THE RESTORED GET (List & Search) ---
+@router.get("/")
+def get_users(search: Optional[str] = None, role: Optional[str] = None, db: Session = Depends(get_db)):
+    """
+    Returns a list of ushers. 
+    - Filters by name or role if provided.
+    """
+    query = db.query(models.User)
+    
+    if search:
+        query = query.filter(models.User.full_name.contains(search))
+    
+    if role:
+        query = query.filter(models.User.role == role)
+    
+    return query.all()
+
+# --- 2. GET SINGLE USER (Useful for details page) ---
+@router.get("/{user_id}")
+def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+# --- 3. THE UPGRADED POST (Full Profile) ---
 @router.post("/")
 def create_user(
     full_name: str, 
@@ -27,18 +53,17 @@ def create_user(
     service_start: Optional[date] = None,
     db: Session = Depends(get_db)
 ):
-    # 1. Check if the phone number is already taken (Our unique index)
+    # Check if the phone number is already taken
     existing = db.query(models.User).filter(models.User.phone_number == phone).first()
     if existing:
         raise HTTPException(status_code=400, detail="Phone number already registered.")
 
-    # 2. Create the User with all the "Report-Ready" columns
     new_user = models.User(
         full_name=full_name,
         phone_number=phone,
         role=role,
-        birth_date=birthday,         # This feeds the Birthday Report
-        service_start_date=service_start, # This feeds the Tenure Report
+        birth_date=birthday,         # Feeds Birthday Report
+        service_start_date=service_start, # Feeds Tenure Report
         last_recognized_milestone=0,
         is_active=True
     )
