@@ -22,6 +22,9 @@ class User(Base):
     service_start_date = Column(Date, nullable=True)
     last_recognized_milestone = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
+    attended_101 = Column(Boolean, default=False) 
+    is_verified = Column(Boolean, default=False) 
+    is_trainee = Column(Boolean, default=True)
     registrations = relationship("Registration", back_populates="user")
 
 class ServiceSlot(Base):
@@ -57,3 +60,10 @@ class AuditLog(Base):
     
     action_type = Column(String) # e.g., "UPDATE", "REVERT", "STATUS_CHANGE"
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, index=True)
+    value = Column(String)
+    description = Column(String, nullable=True)
