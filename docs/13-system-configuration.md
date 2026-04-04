@@ -1,4 +1,4 @@
-# 13. System Configuration & Business Rules
+# 13-system-configuration.md
 
 ## Overview
 This document defines the global variables and logic toggles that govern the Ushering Ministry's automated workflows. These values are stored in the `system_settings` table.
