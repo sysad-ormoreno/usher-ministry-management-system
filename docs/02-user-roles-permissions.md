@@ -1,3 +1,4 @@
+# 02. User Roles & Permissions
 > **File:** `02-user-roles-permissions.md`  
 > **Status:** `STABLE` | **Domain:** `Access Control & Attendance States`
 
