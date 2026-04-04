@@ -51,6 +51,7 @@ def create_user(
     role: str = "VOLUNTEER", 
     birthday: Optional[date] = None, 
     service_start: Optional[date] = None,
+    has_attended_101: bool = False, # <--- Added this
     db: Session = Depends(get_db)
 ):
     # Check if the phone number is already taken
@@ -62,10 +63,14 @@ def create_user(
         full_name=full_name,
         phone_number=phone,
         role=role,
-        birth_date=birthday,         # Feeds Birthday Report
-        service_start_date=service_start, # Feeds Tenure Report
+        birth_date=birthday,
+        service_start_date=service_start,
         last_recognized_milestone=0,
-        is_active=True
+        is_active=True,
+        # --- NEW FIELDS ---
+        attended_101=has_attended_101, 
+        is_trainee=True,      # Everyone starts as a trainee
+        is_verified=False     # Leaders must confirm this later
     )
     
     db.add(new_user)
