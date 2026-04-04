@@ -1,47 +1,76 @@
-# 09-volunteer-management.md
+# 09. Volunteer & Guest Management
 
-## 1. Goals
-- **Accessibility:** Allow volunteers (provincial/senior members without Google accounts) to register and self-manage.
-- **Low Friction:** Avoid full account creation while maintaining a "session" for edits.
-- **Data Integrity:** Ensure volunteer activity is trackable by Core Leaders for burnout and reliability analytics.
-- **Tenure Policy:** Note that Volunteers **do not** accrue tenure milestones (3/5/10 years) while in this status. Tenure only begins upon promotion to a Member role.
+**File:** 09-volunteer-management.md
+**Status:** STABLE | **Domain:** Guest Access & Promotion Workflows
 
-## 2. Authentication & Identity
-- **Primary ID:** The `phone_number` serves as the unique identifier in the `user_profiles` table.
-- **The PIN:** 
-    - System generates a **4-digit numeric PIN** upon initial registration.
-    - PIN is displayed **once** on the confirmation screen with a "Save this PIN" warning.
-    - Only the **Hashed PIN** is stored in the database (Argon2/Bcrypt).
-- **Session Logic:** A Volunteer logs in using (Phone + PIN) to receive a short-lived (15-min) JWT specifically scoped for their own registration IDs.
+## 1. Objectives & Scope
+* **Accessibility:** Provide a low-barrier entry for provincial or 
+  senior members who do not utilize Google accounts.
+* **Frictionless Interaction:** Enable registration and 
+  self-management without a permanent account structure.
+* **Data Reliability:** Ensure all guest activity is captured 
+  for Core Leader analytics (burnout and reliability tracking).
+* **Tenure Policy:** Volunteers **do not** accrue tenure milestones 
+  (3/5/10 years). Milestone tracking is activated only upon 
+  promotion to a Member (`USHER`) role.
 
-## 3. Permitted Actions (Self-Service)
-- **Edit Details:** Update `arrival_time` or `discipler_name`.
-- **Modify Slots:** Update Sunday slot selections (1st, 2nd, 3rd) within the **same date**.
-- **Withdrawal:** Change registration `state` to `CANCELLED`. 
-    - **Constraint:** Hard deletion is disabled. The record remains in the DB for "Reliability" tracking.
+## 2. Authentication & Identity Logic
+* **Unique Identifier:** The `phone_number` serves as the primary 
+  key within the `user_profiles` table for all guests.
+* **The 4-Digit PIN:**
+    * Generated automatically by the system during registration.
+    * Displayed **once** on the confirmation screen with a 
+      high-visibility "Save your PIN" warning.
+    * Stored in the database using secure hashing (Argon2/Bcrypt).
+* **Session Management:** Authorization is granted via a 
+  short-lived (15-minute) JWT, scoped specifically to the 
+  Volunteer's registration IDs.
 
-## 4. Restricted Actions (Guardrails)
-- **No Moving:** Volunteers **cannot** move their registration to a different date/event instance. 
-    - *Reasoning:* Moving requires complex validation of new dates; if a volunteer needs to "Move," they must Withdraw and Re-register, or contact a Core Leader.
-- **Lockout:** All actions are disabled 24 hours prior to the slot start time.
+## 3. Permitted Self-Service Actions
+* **Profile Updates:** Volunteers may update their `arrival_time` 
+  or `discipler_name` for an active registration.
+* **Slot Modification:** Adjust Sunday slot selections (1st, 2nd, 
+  or 3rd) within the **same calendar date**.
+* **Withdrawal:** Transition the registration state to `CANCELLED`.
+    * **Constraint:** Hard deletion is strictly disabled to 
+      maintain historical reliability data.
 
-## 5. Security & Rate Limiting
-- **Brute Force Protection:** Implement a strict rate limit (e.g., 5 attempts per 10 minutes) on the Phone + PIN login endpoint.
-- **PII Protection:** Volunteer contact info is only visible to users with `CORE_LEADER` or `ADMIN` roles.
+## 4. Operational Guardrails
+* **Movement Restriction:** Volunteers are prohibited from 
+  "Moving" a registration to a different date or event instance.
+* **Lockout Enforcement:** All self-service actions are disabled 
+  24 hours prior to the specific slot start time.
 
-## 6. The "Upgrade" & Promotion Path
-- **Initiation:** If a Volunteer eventually signs in with a Google Account, they complete the **New Member Registration**.
-- **Account Linking:** An Admin must "Link" the accounts by adding the `google_id` to the existing volunteer record.
-- **Promotion:** The role is updated to `USHER`, preserving their entire service history.
-- **Tenure Kick-off:** During this merge, the Admin manually sets the `service_start_date`. Leaders have the discretion to "backdate" this to include past Volunteer service or set it to the current date.
+## 5. Security & Privacy
+* **Brute Force Mitigation:** Implement a strict rate limit 
+  (e.g., 5 attempts per 10 minutes) on the Login endpoint.
+* **PII Protection:** Volunteer contact details are exclusively 
+  visible to `CORE_LEADER` and `ADMIN` roles.
 
-## 7. The Approval Gate (New Member Security)
-- **Status: PENDING:** All new Google registrations (whether a new user or a promoted volunteer) default to `status: PENDING`.
-- **Core Leader Review:** Users in `PENDING` status are blocked from registering for any upcoming slots. They remain in the "Waiting Room" until a Core Leader manually approves them.
-- **Bot/Spam Protection:** This human-in-the-loop step ensures that only verified individuals enter the active roster, preventing bot-driven registration floods.
+## 6. Promotion & Account Linking
+* **Transition Path:** When a Volunteer eventually authenticates 
+  via Google, they trigger the **New Member Registration** flow.
+* **Database Merge:** An Admin performs an "Account Link" by 
+  mapping the `google_id` to the existing volunteer record.
+* **Role Update:** The user role is elevated to `USHER`, 
+  preserving all historical service data.
+* **Tenure Initialization:** The Admin manually initializes the 
+  `service_start_date`, with the discretion to backdate the 
+  tenure to include prior volunteer service.
 
-## 8. Leadership Notifications
-- **Trigger:** When a new user completes the Profile Setup Form (New Member).
-- **Action:** An automated notification is sent to all `ADMIN` and `CORE_LEADER` roles.
-- **Content:** *"New Member Registration: [Name] is awaiting approval. Review profile to set Tenure Start Date."*
-- **Deep Link:** The notification deep-links directly to the User Directory for immediate approval/rejection.
+## 7. The Approval Gate (Member Security)
+* **Default State:** All new Google-linked registrations default 
+  to `status: PENDING`.
+* **Human-in-the-Loop:** `PENDING` users are restricted to a 
+  "Waiting Room" until a Core Leader manually verifies the account.
+* **Bot Protection:** This step serves as the final defense 
+  against automated spam or unauthorized entry.
+
+## 8. Administrative Notifications
+* **Trigger Event:** Completion of the Profile Setup Form by a 
+  new Member or promoted Volunteer.
+* **Target Audience:** All users with `ADMIN` or `CORE_LEADER` roles.
+* **Content:** "New Member Registration: [Name] is awaiting 
+  approval. Review profile to set Tenure Start Date."
+* **Deep-Linking:** Notifications link directly to the 
+  **User Directory** for immediate action.
