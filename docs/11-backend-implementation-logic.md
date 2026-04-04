@@ -1,4 +1,8 @@
-# 11-backend-implementation-logic.md
+# 11. Backend Implementation Logic
+> **File:** `11-backend-implementation-logic.md`  
+> **Status:** `STABLE` | **Domain:** `Server-Side Validation & Core Functions`
+
+---
 
 ## 1. The Sunday Rule (Grace Period Validation)
 **Objective:** Prevent ushers from signing up for slots they arrive too late for.  
