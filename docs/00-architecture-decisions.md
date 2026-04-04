@@ -1,28 +1,46 @@
-# 00-architecture-decisions.md
+# 00. Architectural Decision Records (ADR)
+> **File:** `00-architecture-decisions.md`  
+> **Status:** `STABLE` | **Domain:** `System Design & Standards`
 
-## Data Management Strategy
-This table defines our hybrid approach to database interactions to ensure a balance between development speed and system performance.
+---
 
-| Task | Methodology | Why? |
+## 1. Executive Summary
+This document outlines the core technical philosophies and data management strategies for the Ushering Ministry System. It serves as the "Rulebook" for choosing between ORM simplicity and Raw SQL performance to ensure the system remains both scalable and maintainable.
+
+---
+
+## 2. Data Management Strategy
+We employ a hybrid database interaction model to balance developer velocity with execution efficiency.
+
+| Task | Methodology | Rationale |
 | :--- | :--- | :--- |
-| **Basic CRUD** | ORM (SQLAlchemy) | Faster and safer for standard Create, Read, Update, Delete operations. |
-| **Complex Reporting** | Raw SQL / Stored Procs | Handles heavy "math" and data aggregation inside the database for better performance. |
-| **Schema Changes** | Migrations (Alembic) | Version-controlled files ensure every developer's local database stays in sync. |
+| **Basic CRUD** | **ORM (SQLAlchemy)** | Maximizes safety and speed for standard Create, Read, Update, and Delete operations. |
+| **Complex Reporting** | **Raw SQL / Analytics** | Offloads heavy data aggregation and "math" to the database engine for peak performance. |
+| **Schema Evolution** | **Alembic Migrations** | Provides a version-controlled history, ensuring environment parity across all developer machines. |
 
 ---
 
-### Quick Reference: When to use what?
+## 3. Implementation Reference
 
-    # Use the ORM for simple lookups (Pythonic)
-    user = db.query(User).filter(User.phone == "0917...").first()
+### Pythonic CRUD (ORM)
+*Use for single-record lookups and basic relationship mapping.*
+```python
+# Standard lookup by Unique Index
+user = db.query(User).filter(User.phone == "0917...").first()
+```
 
-    # Use Raw SQL for heavy statistics (Performance)
-    stats = db.execute("SELECT slot_id, COUNT(*) FROM registrations GROUP BY slot_id")
+### High-Performance Analytics (Raw SQL)
+*Use for dashboarding, multi-table joins, and group-by aggregations.*
+```sql
+-- Calculating slot utilization for the Admin Dashboard
+SELECT slot_id, COUNT(*) FROM registrations GROUP BY slot_id;
+```
 
 ---
 
-### 1. The "Why" behind Migrations
-We don't manually run `CREATE TABLE` commands in the production database. Instead, we use **Migrations**. 
-- **Traceability:** We can see exactly who changed a column name and when.
-- **Rollback:** If a database change breaks the app, we can "undo" the schema change with one command.
-- **Consistency:** Ensures the database in your local environment matches the one on the server.
+## 4. The Migration Protocol
+Manual `ALTER TABLE` commands are strictly prohibited in the production environment. 
+
+* **Traceability:** Every schema change is linked to a specific migration file and timestamp.
+* **Safety (Rollbacks):** If a structural change causes a regression, the schema can be reverted to a "Last Known Good" state with a single command.
+* **Environment Parity:** Guarantees that the Local, Staging, and Production databases are structurally identical.
