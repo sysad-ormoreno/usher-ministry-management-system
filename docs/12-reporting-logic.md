@@ -1,4 +1,4 @@
-# Reporting & Leader Dashboards
+# 12-reporting-logic.md
 
 ## 1. Birthday Dashboard
 **Objective:** Provide Core Leaders with a monthly overview of usher birthdays for community building.
