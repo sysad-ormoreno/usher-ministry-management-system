@@ -1,4 +1,4 @@
-# 05-api-spec-v1.md
+# 05-api-spec.md
 
 ## 1. Authentication & Profile
 - `POST /auth/google`: Exchanges Google Token for a JWT.
