@@ -84,3 +84,27 @@ def get_tenure_audit(db: Session = Depends(get_db)):
         })
         
     return report
+
+@router.get("/trainee-readiness", tags=["Reports"])
+async def get_trainee_readiness(db: Session = Depends(get_db)):
+    """
+    Identifies Trainees (Flag 101) who have completed the 
+    required 6-week consecutive Sunday streak.
+    """
+    # 1. Fetch all users with status_flag 101
+    trainees = db.query(models.User).filter(models.User.status_flag == 101).all()
+    
+    ready_list = []
+    
+    for trainee in trainees:
+        # Use the logic we discussed:
+        streak_count, is_ready = calculate_consecutive_streak(db, trainee.id)
+        if is_ready:
+            ready_list.append({
+                "user_id": trainee.id,
+                "name": trainee.full_name,
+                "current_streak": streak_count,
+                "message": "Ready for Core Leader Review"
+            })
+            
+    return ready_list
