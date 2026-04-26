@@ -19,6 +19,23 @@ def get_db():
     finally:
         db.close()
 
+def calculate_consecutive_streak(db: Session, user_id: int):
+    # Logic we discussed earlier
+    attendances = db.query(models.Registration).filter(
+        models.Registration.user_id == user_id,
+        models.Registration.state == "PRESENT"
+    ).order_by(models.Registration.date.desc()).all()
+    
+    if not attendances: return 0, False
+    
+    streak = 1
+    for i in range(len(attendances) - 1):
+        if (attendances[i].date - attendances[i+1].date).days == 7:
+            streak += 1
+        else:
+            break
+    return streak, streak >= 6
+    
 @router.get("/birthdays/summary")
 def get_birthday_summary(db: Session = Depends(get_db)):
     # Added filter to ignore null birth_dates so the 'count' is accurate
