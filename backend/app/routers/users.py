@@ -79,6 +79,7 @@ def create_user(
     
     return new_user
 
-@router.get("/me", response_model=schemas.UserRead)
-async def read_user_me(current_user: models.User = Depends(get_current_active_user)):
-    return current_user
+# Comment this out or remove it for now since 'get_current_active_user' isn't defined
+# @router.get("/me", response_model=schemas.UserRead)
+# async def read_user_me(current_user: models.User = Depends(get_current_active_user)):
+#     return current_user
