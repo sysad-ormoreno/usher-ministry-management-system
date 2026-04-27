@@ -7,7 +7,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import date
-from .. import models, database, schemas
+from .. import models, database
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
